@@ -1,0 +1,333 @@
+/* ==========================================
+   ドラゴン図鑑 CSS
+   ========================================== */
+
+/* --- 図鑑画面 --- */
+#zukan-screen {
+    display: none;
+    text-align: center;
+    color: white;
+    padding: 12px;
+    min-height: 600px;
+    background: linear-gradient(180deg, #0a0a2e 0%, #1a1040 40%, #0d0d2a 100%);
+}
+
+/* --- ヘッダー --- */
+.zukan-header {
+    margin-bottom: 10px;
+}
+
+.zukan-title {
+    font-size: 24px;
+    font-weight: 900;
+    color: #ffcc00;
+    text-shadow: 0 0 10px rgba(255,200,0,0.4), 2px 2px 0 #000;
+    margin: 0 0 4px;
+}
+
+.zukan-counter {
+    font-size: 14px;
+    color: #aaa;
+}
+
+.zukan-counter .counter-num {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffcc00;
+}
+
+/* --- 進捗バー --- */
+.zukan-progress-wrap {
+    width: 80%;
+    margin: 6px auto 12px;
+    height: 10px;
+    background: #222;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.15);
+    overflow: hidden;
+}
+
+.zukan-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f1c40f, #e67e22);
+    border-radius: 4px;
+    transition: width 0.5s ease-out;
+    width: 0%;
+}
+
+/* --- ランクタブ --- */
+.zukan-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.zukan-tab {
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #aaa;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.zukan-tab:active {
+    transform: scale(0.95);
+}
+
+.zukan-tab.tab-active {
+    color: #ffcc00;
+    background: rgba(255,200,0,0.15);
+    border-color: rgba(255,200,0,0.5);
+}
+
+/* --- カードグリッド --- */
+.zukan-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 0 4px;
+    max-height: 380px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,200,0,0.3) transparent;
+}
+
+.zukan-grid::-webkit-scrollbar {
+    width: 4px;
+}
+
+.zukan-grid::-webkit-scrollbar-thumb {
+    background: rgba(255,200,0,0.3);
+    border-radius: 2px;
+}
+
+/* --- 個別カード --- */
+.zukan-card {
+    background: rgba(255,255,255,0.06);
+    border: 2px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 8px 4px;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.zukan-card:active {
+    transform: scale(0.95);
+}
+
+.zukan-card.discovered {
+    border-color: rgba(255,200,0,0.3);
+}
+
+.zukan-card.discovered:hover {
+    border-color: rgba(255,200,0,0.7);
+}
+
+/* 未発見カード */
+.zukan-card.locked {
+    cursor: default;
+}
+
+.zukan-card.locked .zukan-card-img {
+    filter: brightness(0) saturate(0);
+    opacity: 0.15;
+}
+
+/* カード画像 */
+.zukan-card-img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+}
+
+/* カード番号 */
+.zukan-card-no {
+    position: absolute;
+    top: 3px;
+    left: 5px;
+    font-size: 10px;
+    font-weight: bold;
+    color: rgba(255,255,255,0.3);
+}
+
+/* カード名前 */
+.zukan-card-name {
+    font-size: 10px;
+    font-weight: bold;
+    color: #ddd;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.zukan-card.locked .zukan-card-name {
+    color: #555;
+}
+
+/* ランク星 */
+.zukan-card-rank {
+    font-size: 9px;
+    color: #f1c40f;
+    margin-top: 2px;
+}
+
+/* NEW バッジ */
+.zukan-new-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: #e74c3c;
+    color: white;
+    font-size: 8px;
+    font-weight: bold;
+    padding: 1px 4px;
+    border-radius: 4px;
+    animation: zukanNewPulse 1s ease-in-out infinite;
+}
+
+@keyframes zukanNewPulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* ==========================================
+   図鑑詳細モーダル
+   ========================================== */
+#zukan-detail-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.75);
+    z-index: 8000;
+    justify-content: center;
+    align-items: center;
+}
+
+#zukan-detail-overlay.zukan-detail-visible {
+    display: flex;
+}
+
+.zukan-detail-card {
+    background: linear-gradient(180deg, #1a1040, #0d0d2a);
+    border: 3px solid rgba(255,200,0,0.5);
+    border-radius: 16px;
+    padding: 20px;
+    width: 85%;
+    max-width: 320px;
+    text-align: center;
+    position: relative;
+    animation: zukanDetailIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes zukanDetailIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+.zukan-detail-close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 24px;
+    color: #aaa;
+    cursor: pointer;
+    background: none;
+    border: none;
+    line-height: 1;
+}
+
+.zukan-detail-no {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.zukan-detail-img {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 10px;
+    filter: drop-shadow(0 4px 12px rgba(255,200,0,0.3));
+}
+
+.zukan-detail-name {
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 1px 1px 3px #000;
+    margin-bottom: 6px;
+}
+
+.zukan-detail-rank {
+    font-size: 16px;
+    color: #f1c40f;
+    margin-bottom: 12px;
+}
+
+.zukan-detail-stats {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.zukan-stat {
+    text-align: center;
+}
+
+.zukan-stat-label {
+    font-size: 11px;
+    color: #888;
+}
+
+.zukan-stat-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+}
+
+/* --- 戻るボタン --- */
+.zukan-back-btn {
+    display: block;
+    width: 80%;
+    margin: 12px auto 0;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(180deg, #555, #444);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #333;
+    transition: transform 0.1s;
+}
+
+.zukan-back-btn:active {
+    transform: translateY(3px);
+    box-shadow: none;
+}
+
+/* --- ホームの図鑑ボタン --- */
+.btn-zukan {
+    background: linear-gradient(to bottom, #9b59b6, #8e44ad);
+}

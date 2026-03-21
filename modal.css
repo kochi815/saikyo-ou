@@ -1,0 +1,185 @@
+/* ==========================================
+   モーダル（ゲーム内ダイアログ）のスタイル
+   alert() / confirm() の完全代替
+   ========================================== */
+
+/* --- オーバーレイ（背景の暗幕） --- */
+#modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+#modal-overlay.modal-visible {
+    display: flex;
+}
+
+/* --- モーダルボックス本体 --- */
+.modal-box {
+    background: linear-gradient(135deg, #2a2a3d, #1e1e2e);
+    border-radius: 16px;
+    padding: 28px 24px 20px;
+    width: 88%;
+    max-width: 380px;
+    text-align: center;
+    position: relative;
+    border: 3px solid #555;
+    box-shadow:
+        0 0 30px rgba(0, 0, 0, 0.6),
+        0 0 60px rgba(100, 100, 255, 0.1);
+}
+
+/* --- タイプ別ボーダー色 --- */
+.modal-success {
+    border-color: #2ecc71;
+    box-shadow:
+        0 0 30px rgba(0, 0, 0, 0.6),
+        0 0 40px rgba(46, 204, 113, 0.15);
+}
+
+.modal-danger {
+    border-color: #e74c3c;
+    box-shadow:
+        0 0 30px rgba(0, 0, 0, 0.6),
+        0 0 40px rgba(231, 76, 60, 0.15);
+}
+
+.modal-warning {
+    border-color: #f39c12;
+    box-shadow:
+        0 0 30px rgba(0, 0, 0, 0.6),
+        0 0 40px rgba(243, 156, 18, 0.15);
+}
+
+.modal-confirm {
+    border-color: #3498db;
+    box-shadow:
+        0 0 30px rgba(0, 0, 0, 0.6),
+        0 0 40px rgba(52, 152, 219, 0.15);
+}
+
+.modal-info {
+    border-color: #9b59b6;
+    box-shadow:
+        0 0 30px rgba(0, 0, 0, 0.6),
+        0 0 40px rgba(155, 89, 182, 0.15);
+}
+
+/* --- アイコン（大きな絵文字） --- */
+#modal-icon {
+    font-size: 52px;
+    margin-bottom: 8px;
+    /* ふわふわ浮くアニメーション */
+    animation: modalIconFloat 2s ease-in-out infinite;
+}
+
+@keyframes modalIconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+/* --- タイトル --- */
+#modal-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #ffcc00;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    margin-bottom: 12px;
+    line-height: 1.3;
+}
+
+/* --- メッセージ本文 --- */
+#modal-message {
+    font-size: 16px;
+    color: #e0e0e0;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    min-height: 40px;
+}
+
+/* --- 強調テキスト --- */
+.modal-highlight {
+    color: #ffcc00;
+    font-weight: bold;
+    font-size: 1.15em;
+}
+
+/* --- ボタンエリア --- */
+#modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* --- ボタン共通 --- */
+.modal-btn {
+    flex: 1;
+    min-width: 110px;
+    max-width: 200px;
+    padding: 14px 10px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.modal-btn:active {
+    transform: translateY(3px);
+    box-shadow: none !important;
+}
+
+/* --- ボタン：プライマリ --- */
+.modal-btn-primary {
+    background: linear-gradient(to bottom, #e74c3c, #c0392b);
+    box-shadow: 0 4px 0 #962d22;
+}
+
+/* --- ボタン：セカンダリ --- */
+.modal-btn-secondary {
+    background: linear-gradient(to bottom, #7f8c8d, #6c7a7b);
+    box-shadow: 0 4px 0 #566162;
+}
+
+/* --- 登場アニメーション --- */
+.modal-animate-in {
+    animation: modalPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes modalPopIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.6) translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* --- 退場アニメーション --- */
+.modal-animate-out {
+    animation: modalPopOut 0.18s ease-in forwards;
+}
+
+@keyframes modalPopOut {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.85) translateY(10px);
+    }
+}

@@ -1,0 +1,787 @@
+/* ==========================================
+   1. 全体の基本設定
+   ========================================== */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #1a1a1a;
+    color: white;
+    font-family: "Arial", "Hiragino Kaku Gothic ProN", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* ゲーム画面の枠（スマホっぽい縦長画面） */
+#game-container {
+    width: 100%;
+    max-width: 450px;
+    background-color: #2d2d2d;
+    border: 4px solid #444;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    overflow: hidden;
+    position: relative;
+}
+
+/* ==========================================
+   2. バトル画面 — 全体レイアウト
+   ========================================== */
+#battle-scene {
+    display: flex;
+    flex-direction: column;
+    min-height: 620px;
+    padding: 0;
+    text-align: center;
+    position: relative;
+    /* デフォルト背景（大会ごとにJSで変える想定） */
+    background: linear-gradient(180deg, #1a0a2e 0%, #16213e 40%, #0f3460 100%);
+}
+
+/* --- 一時停止ボタン --- */
+.pause-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    z-index: 40;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    line-height: 1;
+}
+.pause-btn:active {
+    background: rgba(255,255,255,0.2);
+}
+
+/* --- ラウンド表示バナー --- */
+#round-banner {
+    background: rgba(0,0,0,0.5);
+    color: #ffcc00;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    padding: 4px 0;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* ==========================================
+   3. 敵エリア（上段）
+   ========================================== */
+#enemy-area {
+    padding: 8px 12px 0;
+    min-height: auto;
+    margin-bottom: 0;
+}
+
+.enemy-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.enemy-img-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 150px;
+}
+
+#enemy-img {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(255, 50, 50, 0.4));
+    background: none;
+    border: none;
+    border-radius: 0;
+    transition: filter 0.3s, transform 0.2s;
+}
+
+/* 敵がダメージを受けた時の点滅＋揺れ */
+#enemy-img.enemy-hit {
+    animation: enemyHit 0.5s ease-out;
+}
+@keyframes enemyHit {
+    0%   { transform: translate(0, 0); filter: drop-shadow(0 4px 12px rgba(255,50,50,0.4)) brightness(2); }
+    15%  { transform: translate(-8px, -4px); filter: drop-shadow(0 4px 12px rgba(255,50,50,0.4)) brightness(0.5); }
+    30%  { transform: translate(6px, 2px); filter: drop-shadow(0 4px 12px rgba(255,50,50,0.4)) brightness(2); }
+    45%  { transform: translate(-4px, -2px); filter: drop-shadow(0 4px 12px rgba(255,50,50,0.4)) brightness(0.7); }
+    60%  { transform: translate(3px, 1px); }
+    100% { transform: translate(0, 0); filter: drop-shadow(0 4px 12px rgba(255,50,50,0.4)) brightness(1); }
+}
+
+/* 敵が攻撃する時の突進 */
+#enemy-img.enemy-attack {
+    animation: enemyAttackLunge 0.4s ease-in-out;
+}
+@keyframes enemyAttackLunge {
+    0%   { transform: translate(0, 0) scale(1); }
+    30%  { transform: translate(0, 30px) scale(1.15); }
+    60%  { transform: translate(0, 35px) scale(1.2); }
+    100% { transform: translate(0, 0) scale(1); }
+}
+
+/* 味方ドラゴンの被弾揺れ */
+#player-img.player-hit {
+    animation: playerHit 0.4s ease-out;
+}
+@keyframes playerHit {
+    0%   { transform: translate(0, 0); filter: drop-shadow(0 4px 12px rgba(50,150,255,0.4)) brightness(1); }
+    20%  { transform: translate(5px, 3px); filter: drop-shadow(0 4px 12px rgba(255,0,0,0.6)) brightness(1.5); }
+    40%  { transform: translate(-4px, -2px); filter: drop-shadow(0 4px 12px rgba(255,0,0,0.6)) brightness(0.6); }
+    60%  { transform: translate(3px, 1px); }
+    100% { transform: translate(0, 0); filter: drop-shadow(0 4px 12px rgba(50,150,255,0.4)) brightness(1); }
+}
+
+/* ==========================================
+   4. VS ディバイダー
+   ========================================== */
+#vs-divider {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    margin: 0 12px;
+}
+
+#vs-divider::before,
+#vs-divider::after {
+    content: "";
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,204,0,0.6), transparent);
+}
+
+.vs-text {
+    font-size: 18px;
+    font-weight: 900;
+    color: #ffcc00;
+    text-shadow: 0 0 10px rgba(255,204,0,0.5);
+    padding: 0 12px;
+    letter-spacing: 3px;
+}
+
+/* ==========================================
+   5. 味方エリア（下段）
+   ========================================== */
+#player-area {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 12px;
+    gap: 10px;
+    position: static;
+}
+
+.player-img-wrap {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#player-img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(50, 150, 255, 0.4));
+    position: static;
+    bottom: auto;
+    left: auto;
+    z-index: auto;
+}
+
+.player-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.player-name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.player-lv {
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffcc00;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* ==========================================
+   6. 共通：ファイター名 & HPバー
+   ========================================== */
+.fighter-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+
+.hp-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.hp-bar {
+    flex: 1;
+    height: 16px;
+    background-color: #333;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.3);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+}
+
+.hp-fill {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, #4cff4c, #00cc00);
+    transition: width 0.5s ease-out;
+    border-radius: 6px;
+}
+
+.hp-text {
+    font-size: 12px;
+    font-weight: bold;
+    color: #ccc;
+    white-space: nowrap;
+    min-width: 52px;
+    text-align: right;
+}
+
+/* HPが低い時（JSで付与） */
+.hp-fill.hp-danger {
+    background: linear-gradient(180deg, #ff6666, #cc0000);
+}
+
+.hp-fill.hp-warning {
+    background: linear-gradient(180deg, #ffcc44, #ff8800);
+}
+
+/* ==========================================
+   7. 経験値バー
+   ========================================== */
+.exp-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 2px;
+}
+
+.exp-label {
+    font-size: 10px;
+    font-weight: bold;
+    color: #aaa;
+    min-width: 28px;
+}
+
+.exp-container {
+    flex: 1;
+    height: 10px;
+    background-color: #333;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.15);
+    overflow: hidden;
+    margin: 0;
+}
+
+.exp-fill {
+    height: 100%;
+    background: linear-gradient(180deg, #7ecfff, #3498db);
+    width: 0%;
+    transition: width 0.3s ease-out;
+    border-radius: 4px;
+}
+
+/* ==========================================
+   8. 問題文 & 回答ボタン（下部）
+   ========================================== */
+#battle-bottom {
+    margin-top: auto;
+    padding: 8px 12px 12px;
+}
+
+#question-area {
+    background: rgba(0,0,0,0.45);
+    padding: 10px 8px;
+    margin: 0 0 8px;
+    border-radius: 10px;
+    border: 2px solid rgba(255,204,0,0.3);
+    backdrop-filter: blur(4px);
+}
+
+#question-text {
+    font-size: 40px;
+    font-weight: bold;
+    color: #ffcc00;
+    text-shadow: 2px 2px 0 #000;
+    line-height: 1.2;
+}
+
+#answer-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.ans-btn {
+    flex: 1;
+    height: 70px;
+    font-size: 32px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(180deg, #3498db, #2176ad);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #1a5f8a, 0 6px 12px rgba(0,0,0,0.3);
+    transition: transform 0.08s, box-shadow 0.08s;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.ans-btn:active {
+    transform: translateY(4px);
+    box-shadow: none;
+}
+
+/* 正解・不正解フィードバック用（将来Step4で使う） */
+.ans-btn.btn-correct {
+    background: linear-gradient(180deg, #2ecc71, #1da050) !important;
+    box-shadow: 0 4px 0 #178a3e, 0 0 16px rgba(46,204,113,0.4) !important;
+}
+.ans-btn.btn-wrong {
+    background: linear-gradient(180deg, #e74c3c, #b83227) !important;
+    box-shadow: 0 4px 0 #8e251d, 0 0 16px rgba(231,76,60,0.4) !important;
+}
+
+/* ==========================================
+   9. コンボ・実況テキスト
+   ========================================== */
+.combo-text {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 20px;
+    font-weight: 900;
+    color: #ff4500;
+    text-shadow: 2px 2px 0 #fff, -1px -1px 0 #fff;
+    opacity: 0;
+    transition: opacity 0.2s, top 0.5s;
+    pointer-events: none;
+    z-index: 20;
+    white-space: nowrap;
+}
+
+.combo-active {
+    opacity: 1;
+    top: -8px;
+}
+
+/* ==========================================
+   10. ダメージアニメーション
+   ========================================== */
+.shake {
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%   { transform: translate(1px, 1px) rotate(0deg); }
+    10%  { transform: translate(-2px, -3px) rotate(-1deg); }
+    20%  { transform: translate(-4px, 0px) rotate(1deg); }
+    30%  { transform: translate(4px, 2px) rotate(0deg); }
+    40%  { transform: translate(2px, -2px) rotate(1deg); }
+    50%  { transform: translate(-2px, 3px) rotate(-1deg); }
+    60%  { transform: translate(-4px, 1px) rotate(0deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.shake-effect {
+    animation: shake 0.5s;
+    animation-iteration-count: 1;
+}
+
+@keyframes pulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* ==========================================
+   11. 特訓モード バナー & ビジュアル
+   ========================================== */
+.training-banner {
+    background: linear-gradient(90deg, #e67e22, #f39c12, #e67e22);
+    color: #fff;
+    font-size: 20px;
+    font-weight: 900;
+    text-align: center;
+    padding: 8px 0;
+    letter-spacing: 4px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+    animation: trainingBannerPulse 2s ease-in-out infinite;
+}
+
+@keyframes trainingBannerPulse {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { filter: brightness(1.15); }
+}
+
+.training-target {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 150px;
+    padding: 10px;
+}
+
+.training-target-icon {
+    font-size: 80px;
+    animation: trainingTargetBounce 1.5s ease-in-out infinite;
+}
+
+@keyframes trainingTargetBounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+}
+
+.training-counter {
+    font-size: 16px;
+    color: #ffcc00;
+    font-weight: bold;
+    margin-top: 5px;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* ==========================================
+   12. #player-status（互換性維持）
+   ========================================== */
+#player-status {
+    display: none; /* 旧レイアウト非表示。HP表示は新バーで管理 */
+}
+
+/* ==========================================
+   13. コマンドメニュー（バトル）
+   ========================================== */
+/* battle message box - shows text like "どうする？" */
+.battle-msg-box {
+    background: rgba(0,0,0,0.7);
+    border: 2px solid rgba(255,204,0,0.5);
+    border-radius: 10px;
+    padding: 12px;
+    margin: 0 12px 8px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 2px #000;
+    line-height: 1.4;
+    white-space: pre-line;
+}
+
+/* 4-button command grid */
+.command-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 0 12px 12px;
+}
+
+.cmd-btn {
+    height: 56px;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    transition: transform 0.08s;
+}
+.cmd-btn:active { transform: translateY(3px); }
+.cmd-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.cmd-fight { background: linear-gradient(180deg, #e74c3c, #c0392b); box-shadow: 0 4px 0 #962d22; }
+.cmd-item { background: linear-gradient(180deg, #f1c40f, #d4ac0d); color: #333; box-shadow: 0 4px 0 #b8960b; }
+.cmd-switch { background: linear-gradient(180deg, #3498db, #2176ad); box-shadow: 0 4px 0 #1a5f8a; }
+.cmd-run { background: linear-gradient(180deg, #7f8c8d, #6c7a7b); box-shadow: 0 4px 0 #545f60; }
+
+/* Move selection list */
+.move-list, .item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 12px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.move-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.5);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+.move-card:hover, .move-card:active {
+    border-color: #ffcc00;
+    background: rgba(255,204,0,0.15);
+}
+.move-card.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.move-card-icon { font-size: 24px; }
+.move-card-info { flex: 1; text-align: left; }
+.move-card-name { font-size: 16px; font-weight: bold; color: #fff; }
+.move-card-pp { font-size: 12px; color: #aaa; }
+
+.item-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.5);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+.item-card:hover { border-color: #f1c40f; }
+.item-card-icon { font-size: 24px; }
+.item-card-name { font-size: 16px; font-weight: bold; color: #fff; flex: 1; }
+.item-card-count { font-size: 14px; color: #ffcc00; }
+
+.cmd-btn-back {
+    display: block;
+    width: calc(100% - 24px);
+    margin: 8px 12px;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background: #7f8c8d;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* ==========================================
+   14. ショップ画面
+   ========================================== */
+.shop-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 10px 15px;
+}
+.shop-tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #999;
+    background: #333;
+    border: 2px solid #555;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.shop-tab.active {
+    color: #ffcc00;
+    border-color: #ffcc00;
+    background: #3a3520;
+}
+
+.shop-card {
+    background: #333;
+    border: 2px solid #555;
+    border-radius: 10px;
+    padding: 12px;
+    margin: 8px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.shop-card-icon { font-size: 32px; }
+.shop-card-info { flex: 1; }
+.shop-card-name { font-size: 16px; font-weight: bold; color: #fff; }
+.shop-card-desc { font-size: 12px; color: #aaa; margin-top: 2px; }
+.shop-card-price { font-size: 14px; color: #ffcc00; font-weight: bold; margin-top: 4px; }
+.shop-card-owned { font-size: 11px; color: #888; }
+
+.shop-buy-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(180deg, #2ecc71, #27ae60);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.shop-buy-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+}
+
+/* ==========================================
+   15. しごとモード
+   ========================================== */
+.work-timer {
+    font-size: 48px;
+    font-weight: bold;
+    color: #ffcc00;
+    text-shadow: 2px 2px 4px #000;
+    text-align: center;
+    margin: 10px 0;
+}
+.work-timer.time-low { color: #e74c3c; animation: timerPulse 0.5s infinite; }
+
+@keyframes timerPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.work-score {
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 15px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.mission-card {
+    background: #333;
+    border: 2px solid #555;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin: 8px 15px;
+}
+.mission-card.completed { border-color: #2ecc71; background: linear-gradient(135deg, #1a2e1a, #2a3e2a); }
+.mission-card.claimed { opacity: 0.5; }
+.mission-name { font-size: 16px; font-weight: bold; color: #ffcc00; }
+.mission-desc { font-size: 13px; color: #ccc; margin: 4px 0; }
+.mission-progress { font-size: 12px; color: #aaa; }
+.mission-reward { font-size: 14px; color: #f1c40f; font-weight: bold; margin-top: 4px; }
+
+.mission-claim-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(180deg, #f1c40f, #d4ac0d);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 6px;
+}
+
+/* ==========================================
+   16. わざへんせい画面
+   ========================================== */
+.equip-slot {
+    background: #2a2a2a;
+    border: 2px dashed #555;
+    border-radius: 10px;
+    padding: 12px;
+    margin: 6px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+}
+.equip-slot.filled { border-style: solid; border-color: #ffcc00; }
+.equip-slot-num { font-size: 14px; color: #888; font-weight: bold; min-width: 24px; }
+.equip-slot-info { flex: 1; }
+.equip-remove-btn {
+    padding: 4px 10px;
+    font-size: 12px;
+    color: white;
+    background: #e74c3c;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.learned-move-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+}
+.learned-move-item:hover { background: rgba(255,204,0,0.1); }
+.learned-move-item.equipped { color: #888; }
+.learned-move-equipped-tag {
+    font-size: 10px;
+    color: #ffcc00;
+    background: rgba(255,204,0,0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* ==========================================
+   17. ゴールド表示（ホーム画面）
+   ========================================== */
+.gold-display {
+    font-size: 18px;
+    font-weight: bold;
+    color: #f1c40f;
+    text-shadow: 1px 1px 2px #000;
+    text-align: center;
+    margin: 5px 0;
+}
+
+/* ==========================================
+   18. 属性タイプバッジ（バトル画面）
+   ========================================== */
+.type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 4px;
+    color: white;
+    margin-left: 6px;
+}
+.type-fire { background: #e74c3c; }
+.type-water { background: #3498db; }
+.type-thunder { background: #f39c12; }
+.type-ground { background: #8B4513; }
+.type-wind { background: #2ecc71; }
+.type-none { background: #7f8c8d; }

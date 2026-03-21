@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>算数最強王 - ドラゴンドリル・コロシアム</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="modal.css">
+    <link rel="stylesheet" href="effects.css">
+    <link rel="stylesheet" href="result.css">
+    <link rel="stylesheet" href="transition.css">
+    <link rel="stylesheet" href="zukan.css">
+    <style>
+        /* 既存のスタイル */
+        #select-screen {
+            text-align: center;
+            padding: 20px;
+            color: white;
+        }
+        .char-select-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .char-card {
+            background-color: #333;
+            border: 2px solid #555;
+            border-radius: 10px;
+            padding: 10px;
+            width: 45%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .char-card:hover {
+            transform: scale(1.05);
+            border-color: #ffcc00;
+            background-color: #444;
+        }
+        .char-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: contain;
+        }
+        .char-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #ffcc00;
+        }
+        /* #player-img は style.css で管理 */
+        #home-screen {
+            text-align: center;
+            padding: 20px;
+            color: white;
+        }
+        .home-btn {
+            display: block;
+            width: 80%;
+            margin: 20px auto;
+            padding: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.5);
+            transition: transform 0.1s;
+        }
+        .home-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .btn-battle { background: linear-gradient(to bottom, #e74c3c, #c0392b); }
+        .btn-train { background: linear-gradient(to bottom, #f1c40f, #f39c12); color: black; text-shadow:none; }
+        .btn-work { background: linear-gradient(to bottom, #9b59b6, #8e44ad); }
+        .btn-shop { background: linear-gradient(to bottom, #1abc9c, #16a085); }
+        .btn-equip { background: linear-gradient(to bottom, #e67e22, #d35400); }
+        .btn-settings { background: linear-gradient(to bottom, #7f8c8d, #6c7a7b); font-size: 18px !important; padding: 10px !important; }
+        .btn-endless { background: linear-gradient(to bottom, #e74c3c, #9b59b6); }
+        .btn-achievement { background: linear-gradient(to bottom, #9b59b6, #8e44ad); }
+
+        .achievement-card {
+            background: #333;
+            border: 2px solid #555;
+            border-radius: 10px;
+            padding: 12px 8px;
+            text-align: center;
+        }
+        .achievement-card.unlocked {
+            border-color: #f1c40f;
+            background: linear-gradient(135deg, #2a2a1a, #3a3520);
+        }
+        .achievement-card.locked {
+            opacity: 0.5;
+        }
+        .achievement-icon { font-size: 36px; margin-bottom: 5px; }
+        .achievement-name { font-size: 13px; font-weight: bold; color: #ffcc00; }
+        .achievement-desc { font-size: 11px; color: #ccc; margin-top: 3px; }
+        #training-menu {
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* ★新規追加：大会選択画面のスタイル */
+        .cup-card {
+            background: #444;
+            margin: 10px auto;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #666;
+            width: 90%;
+            cursor: pointer;
+            text-align: left;
+            position: relative;
+        }
+        .cup-card.locked {
+            background: #222;
+            border-color: #333;
+            color: #555;
+            cursor: not-allowed;
+        }
+        .cup-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .cup-desc {
+            font-size: 12px;
+            color: #ccc;
+        }
+        .cup-status {
+            position: absolute;
+            right: 15px;
+            top: 20px;
+            font-weight: bold;
+            color: #00ff00;
+        }
+
+        /* バトルコマンドメニュー */
+        #command-menu {
+            padding: 15px;
+            background: rgba(0,0,0,0.7);
+            border-top: 2px solid #ffcc00;
+        }
+        .battle-msg-box {
+            background: #333;
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            color: white;
+            font-size: 14px;
+            min-height: 40px;
+            text-align: center;
+        }
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .cmd-btn {
+            padding: 12px;
+            background: #444;
+            border: 2px solid #555;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .cmd-btn:hover:not(:disabled) {
+            background: #555;
+            border-color: #ffcc00;
+            transform: scale(1.05);
+        }
+        .cmd-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .cmd-fight { background: linear-gradient(to bottom, #e74c3c, #c0392b); border-color: #922b21; }
+        .cmd-item { background: linear-gradient(to bottom, #f39c12, #d68910); border-color: #a93110; }
+        .cmd-switch { background: linear-gradient(to bottom, #3498db, #2980b9); border-color: #1f618d; }
+        .cmd-run { background: linear-gradient(to bottom, #95a5a6, #7f8c8d); border-color: #566573; }
+
+        /* 技選択メニュー */
+        #move-select-menu {
+            padding: 15px;
+            background: rgba(0,0,0,0.7);
+            border-top: 2px solid #ffcc00;
+        }
+        .move-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        .move-item {
+            padding: 10px;
+            background: #444;
+            border: 2px solid #555;
+            border-radius: 6px;
+            color: white;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .move-item:hover {
+            background: #555;
+            border-color: #ffcc00;
+            transform: translateX(5px);
+        }
+
+        /* アイテム選択メニュー */
+        #item-select-menu {
+            padding: 15px;
+            background: rgba(0,0,0,0.7);
+            border-top: 2px solid #ffcc00;
+        }
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        .item-item {
+            padding: 10px;
+            background: #444;
+            border: 2px solid #555;
+            border-radius: 6px;
+            color: white;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .item-item:hover {
+            background: #555;
+            border-color: #ffcc00;
+            transform: translateX(5px);
+        }
+
+        .cmd-btn-back {
+            padding: 10px;
+            background: #7f8c8d;
+            border: 2px solid #555;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .cmd-btn-back:hover {
+            background: #8f9d9e;
+            border-color: #ffcc00;
+        }
+
+        /* おしごと画面 */
+        #work-screen {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            display: none;
+        }
+        .work-header {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 2px solid #555;
+        }
+        .gold-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f1c40f;
+        }
+        .gold-label {
+            font-size: 14px;
+            color: #ccc;
+        }
+        .mission-list {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #555;
+            margin-bottom: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .mission-item {
+            background: #444;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border-left: 4px solid #ffcc00;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mission-item:hover {
+            background: #555;
+            transform: translateX(5px);
+        }
+        .mission-title {
+            font-weight: bold;
+            color: #ffcc00;
+            margin-bottom: 3px;
+        }
+        .mission-reward {
+            font-size: 12px;
+            color: #2ecc71;
+        }
+
+        /* ショップ画面 */
+        #shop-screen {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            display: none;
+        }
+        .shop-header {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 2px solid #555;
+        }
+        .shop-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+        .shop-tab {
+            padding: 8px 15px;
+            background: #444;
+            border: 2px solid #555;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .shop-tab.active {
+            background: #ffcc00;
+            color: black;
+            border-color: #f1c40f;
+        }
+        .shop-content {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #555;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .shop-item {
+            background: #444;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border: 2px solid #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .shop-item:hover {
+            background: #555;
+            border-color: #ffcc00;
+        }
+        .shop-item-info {
+            text-align: left;
+        }
+        .shop-item-name {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .shop-item-desc {
+            font-size: 12px;
+            color: #ccc;
+        }
+        .shop-item-price {
+            font-size: 14px;
+            font-weight: bold;
+            color: #f1c40f;
+        }
+
+        /* わざへんせい画面 */
+        #move-equip-screen {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            display: none;
+        }
+        .equip-section {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #555;
+            margin-bottom: 15px;
+        }
+        .equip-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+        .equip-slots {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .equip-slot {
+            background: #444;
+            padding: 15px;
+            border-radius: 6px;
+            border: 2px solid #555;
+            min-height: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .equip-slot.empty {
+            border-style: dashed;
+            color: #888;
+        }
+        .move-list-section {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #555;
+        }
+        .move-list-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+        .move-select-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        .move-select-item {
+            background: #444;
+            padding: 10px;
+            border-radius: 6px;
+            border: 2px solid #555;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        .move-select-item:hover {
+            background: #555;
+            border-color: #ffcc00;
+        }
+
+        /* タイムアタック画面 */
+        #work-timeattack-screen {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            display: none;
+        }
+        .timeattack-header {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 2px solid #555;
+        }
+        .timer-display {
+            font-size: 36px;
+            font-weight: bold;
+            color: #e74c3c;
+            font-family: monospace;
+        }
+        .score-display {
+            font-size: 18px;
+            color: #ffcc00;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== レベルアップ演出 ==================== -->
+    <div id="fx-levelup-flash" class="fx-levelup-flash"></div>
+    <div id="fx-levelup-text" class="fx-levelup-text">LEVEL UP!</div>
+
+    <!-- ==================== 画面遷移オーバーレイ ==================== -->
+    <div id="transition-overlay"></div>
+    <div id="wipe-top" class="battle-wipe-top"></div>
+    <div id="wipe-bottom" class="battle-wipe-bottom"></div>
+    <div id="wipe-vs" class="wipe-vs">VS</div>
+
+    <!-- ==================== モーダル ==================== -->
+    <div id="modal-overlay">
+        <div id="modal-box" class="modal-box">
+            <div id="modal-icon"></div>
+            <div id="modal-title"></div>
+            <div id="modal-message"></div>
+            <div id="modal-buttons"></div>
+        </div>
+    </div>
+
+    <div id="game-container">
+
+        <div id="select-screen">
+            <h1 style="color:#ff4444; text-shadow:2px 2px 0 #000;">パートナーを選べ！</h1>
+            <p>きみの 相棒は どっちだ！？</p>
+
+            <div class="char-select-container">
+                <div class="char-card" onclick="GameManager.startGame('blue')">
+                    <img src="assets/images/player_blue_1.png" alt="王龍">
+                    <div class="char-name">王龍<br>(ブルー)</div>
+                </div>
+
+                <div class="char-card" onclick="GameManager.startGame('red')">
+                    <img src="assets/images/player_red_1.png" alt="ファイヤードレイク">
+                    <div class="char-name">ファイヤードレイク<br>(レッド)</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="home-screen" style="display: none;">
+            <h2 style="color:#ffcc00; text-shadow:2px 2px 0 #000;">ホーム</h2>
+
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); background-size:cover; border-radius:10px; padding:20px;">
+                <img id="home-dragon-img" src="" style="width:180px; height:180px; object-fit:contain; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));">
+            </div>
+
+            <div id="home-title" style="font-size:14px; font-weight:bold; color:#ccc; margin:5px 0; text-shadow:1px 1px 2px #000;">
+                〜 <span id="home-title-text">かけだし ドラゴンつかい</span> 〜
+            </div>
+
+            <div id="home-stats" style="background:#333; padding:15px; border-radius:8px; margin:10px 0; border:2px solid #555;">
+                <div style="font-size:20px; font-weight:bold; color:#fff;">
+                    Lv.<span id="home-lv">1</span> <span id="home-name"></span>
+                </div>
+                <hr style="border-color:#555;">
+                <div style="font-size:16px; color:#ddd; display:flex; justify-content:space-around;">
+                    <span>こうげき<span id="stat-atk" style="color:#ff4444; font-weight:bold;">0</span></span>
+                    <span>ぼうぎょ<span id="stat-def" style="color:#9b59b6; font-weight:bold;">0</span></span>
+                    <span>すばやさ<span id="stat-spd" style="color:#3498db; font-weight:bold;">0</span></span>
+                    <span>たいりょく<span id="stat-hp" style="color:#2ecc71; font-weight:bold;">0</span></span>
+                </div>
+                <div style="margin-top:10px; font-size:16px; color:#f1c40f; font-weight:bold;">
+                    金額: <span id="gold-display">0</span>
+                </div>
+            </div>
+
+            <button class="home-btn btn-battle" onclick="CupManager.openCupSelect()">
+                ⚔️ コロシアムへ
+            </button>
+
+            <button class="home-btn btn-work" onclick="WorkManager.openMenu()">
+                💼 おしごと
+            </button>
+
+            <button class="home-btn btn-train" onclick="TrainingManager.openMenu()">
+                💪 特訓する
+            </button>
+
+            <button class="home-btn btn-shop" onclick="ShopManager.open()">
+                🛍️ ショップ
+            </button>
+
+            <button class="home-btn btn-equip" onclick="MoveManager.openEquipScreen()">
+                ⚡ 技編成
+            </button>
+
+            <button id="btn-endless" class="home-btn btn-endless" onclick="EndlessManager.start()" style="display:none;">
+                ♾️ エンドレスモード
+            </button>
+
+            <button class="home-btn btn-zukan" onclick="ZukanManager.open()">
+                📖 図鑑
+            </button>
+
+            <button class="home-btn btn-achievement" onclick="AchievementManager.open()">
+                🏅 実績
+            </button>
+
+            <button class="home-btn btn-settings" onclick="SettingsManager.open()">
+                ⚙️ 設定
+            </button>
+        </div>
+
+        <!-- ==================== 実績画面 ==================== -->
+        <div id="achievement-screen" style="display: none; text-align: center; color: white; padding: 20px;">
+            <h2 style="color:#ffcc00; text-shadow:2px 2px 0 #000;">🏅 実績</h2>
+            <div style="font-size:16px; color:#ccc; margin-bottom:15px;">
+                かいほう: <span id="achievement-counter" style="color:#ffcc00; font-weight:bold;">0 / 16</span>
+            </div>
+            <div id="achievement-grid" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; max-height:400px; overflow-y:auto; padding:5px;"></div>
+            <button class="ans-btn" style="background:#7f8c8d; height:50px; width:80%; margin-top:15px;"
+                onclick="AchievementManager.close()">
+                もどる
+            </button>
+        </div>
+
+        <!-- ==================== 設定画面 ==================== -->
+        <div id="settings-screen" style="display: none; text-align: center; color: white; padding: 20px;">
+            <h2 style="color:#ffcc00; text-shadow:2px 2px 0 #000;">⚙️ 設定</h2>
+
+            <div style="background:#333; padding:15px; border-radius:10px; margin:15px 0; border:2px solid #555;">
+                <div style="font-size:18px; font-weight:bold; margin-bottom:10px;">🔊 BGM おんりょう</div>
+                <input type="range" id="settings-bgm-vol" min="0" max="100" value="35"
+                    style="width:80%; accent-color:#ffcc00;"
+                    oninput="SettingsManager.onBgmChange(this.value)">
+                <div id="settings-bgm-label" style="font-size:14px; color:#ccc;">35%</div>
+            </div>
+
+            <div style="background:#333; padding:15px; border-radius:10px; margin:15px 0; border:2px solid #555;">
+                <div style="font-size:18px; font-weight:bold; margin-bottom:10px;">🔔 SE おんりょう</div>
+                <input type="range" id="settings-se-vol" min="0" max="100" value="60"
+                    style="width:80%; accent-color:#ffcc00;"
+                    oninput="SettingsManager.onSeChange(this.value)">
+                <div id="settings-se-label" style="font-size:14px; color:#ccc;">60%</div>
+            </div>
+
+            <button class="home-btn" style="background: linear-gradient(to bottom, #e74c3c, #c0392b); margin-top:20px;"
+                onclick="SettingsManager.confirmReset()">
+                🗑️ データを けす
+            </button>
+
+            <button class="ans-btn" style="background:#7f8c8d; height:50px; width:80%; margin-top:15px;"
+                onclick="SettingsManager.close()">
+                もどる
+            </button>
+        </div>
+
+        <div id="cup-select-screen" style="display: none; text-align: center; color: white;">
+            <h2>たいかいを えらべ！</h2>
+            <div id="cup-list-container">
+                </div>
+            <button class="ans-btn" style="background:#7f8c8d; height:50px; width:80%; margin-top:20px;" onclick="CupManager.backToHome()">
+                もどる
+            </button>
+        </div>
+
+        <!-- ==================== 図鑑画面 ==================== -->
+        <div id="zukan-screen">
+            <div class="zukan-header">
+                <div class="zukan-title">ドラゴン図鑑</div>
+                <div id="zukan-counter" class="zukan-counter"><span class="counter-num">0</span> / 31 はっけん</div>
+                <div class="zukan-progress-wrap">
+                    <div id="zukan-progress-fill" class="zukan-progress-fill"></div>
+                </div>
+            </div>
+
+            <!-- ランクタブ -->
+            <div class="zukan-tabs">
+                <div class="zukan-tab tab-active" data-rank="0" onclick="ZukanManager.setFilter(0)">ぜんぶ</div>
+                <div class="zukan-tab" data-rank="1" onclick="ZukanManager.setFilter(1)">★</div>
+                <div class="zukan-tab" data-rank="2" onclick="ZukanManager.setFilter(2)">★★</div>
+                <div class="zukan-tab" data-rank="3" onclick="ZukanManager.setFilter(3)">★★★</div>
+                <div class="zukan-tab" data-rank="4" onclick="ZukanManager.setFilter(4)">★★★★</div>
+            </div>
+
+            <!-- カードグリッド -->
+            <div id="zukan-grid" class="zukan-grid"></div>
+
+            <button class="zukan-back-btn" onclick="ZukanManager.backToHome()">もどる</button>
+        </div>
+
+        <!-- 図鑑詳細モーダル -->
+        <div id="zukan-detail-overlay" onclick="ZukanManager.hideDetail()">
+            <div class="zukan-detail-card" onclick="event.stopPropagation()">
+                <button class="zukan-detail-close" onclick="ZukanManager.hideDetail()">✕</button>
+                <div id="zukan-detail-no" class="zukan-detail-no">No.01</div>
+                <img id="zukan-detail-img" class="zukan-detail-img" src="" alt="">
+                <div id="zukan-detail-name" class="zukan-detail-name">なまえ</div>
+                <div id="zukan-detail-rank" class="zukan-detail-rank">★</div>
+                <div class="zukan-detail-stats">
+                    <div class="zukan-stat">
+                        <div class="zukan-stat-label">HP</div>
+                        <div id="zukan-detail-hp" class="zukan-stat-value">0</div>
+                    </div>
+                    <div class="zukan-stat">
+                        <div class="zukan-stat-label">こうげき</div>
+                        <div id="zukan-detail-atk" class="zukan-stat-value">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="training-menu" style="display: none; color:white;">
+            <h2>特訓メニュー</h2>
+            <p>どの ちからを きたえる？</p>
+
+            <button class="home-btn" style="background:#e67e22;" onclick="TrainingManager.startTraining('attack')">
+                🪨 いわくだき（こうげき UP）
+            </button>
+            <button class="home-btn" style="background:#3498db;" onclick="TrainingManager.startTraining('speed')">
+                💨 もうダッシュ（すばやさ UP）
+            </button>
+            <button class="home-btn" style="background:#9b59b6;" onclick="TrainingManager.startTraining('defense')">
+                🛡️ めいそう（ぼうぎょ UP）
+            </button>
+            <button class="home-btn" style="background:#2ecc71;" onclick="TrainingManager.startTraining('hp')">
+                🧘 からだきょうか（たいりょく UP）
+            </button>
+
+            <button class="ans-btn" style="background:#7f8c8d; height:50px; font-size:18px; margin-top:20px;" onclick="TrainingManager.backToHome()">
+                もどる
+            </button>
+        </div>
+
+        <!-- ==================== おしごと画面 ==================== -->
+        <div id="work-screen" style="display: none; color:white;">
+            <h2 style="color:#ffcc00; text-shadow:2px 2px 0 #000;">おしごと</h2>
+
+            <div class="work-header">
+                <div class="gold-label">現在の 金額</div>
+                <div class="gold-display">💰 <span id="work-gold-display">0</span></div>
+            </div>
+
+            <button class="home-btn btn-work" onclick="WorkManager.startTimeAttack()" style="margin-top:20px;">
+                ⏱️ タイムアタック
+            </button>
+
+            <div style="margin-top:20px;">
+                <h3 style="color:#ffcc00;">まいにちミッション</h3>
+                <div class="mission-list" id="mission-list"></div>
+            </div>
+
+            <button class="ans-btn" style="background:#7f8c8d; height:50px; width:80%; margin-top:20px;" onclick="WorkManager.backToHome()">
+                もどる
+            </button>
+        </div>
+
+        <!-- ==================== タイムアタック画面 ==================== -->
+        <div id="work-timeattack-screen" style="display: none; color:white;">
+            <h2 style="color:#ffcc00; text-shadow:2px 2px 0 #000;">タイムアタック</h2>
+
+            <div class="timeattack-header">
+                <div>のこり じかん</div>
+                <div class="timer-display" id="timer-display">0:00</div>
+                <div class="score-display">スコア: <span id="ta-score-display">0</span></div>
+                <div class="score-display" style="color:#3498db;">コンボ: <span id="ta-combo-display">0</span></div>
+            </div>
+
+            <div id="ta-question-area" style="background:#333; padding:15px; border-radius:8px; margin:15px 0; border:2px solid #555;">
+                <div id="ta-question-text" style="font-size:20px; font-weight:bold; margin-bottom:10px;">準備中...</div>
+            </div>
+
+            <div id="ta-answer-buttons" style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
+                <button class="ans-btn" id="ta-btn-1">-</button>
+                <button class="ans-btn" id="ta-btn-2">-</button>
+                <button class="ans-btn" id="ta-btn-3">-</button>
+            </div>
+
+            <button class="ans-btn" style="background:#7f8c8d; height:50px; width:80%;" onclick="WorkManager.endTimeAttack()">
+                もどる
+            </button>
+        </div>
+
+        <!-- ==================== ショップ画面 ==================== -->
+        <div id="shop-screen" style="display: none; color:white;">
+            <h2 style="color:#ffcc00; text-shadow:2px 2px 0 #000;">ショップ</h2>
+
+            <div class="shop-header">
+                <div class="gold-label">金額</div>
+                <div class="gold-display">💰 <span id="shop-gold-display">0</span></div>
+            </div>
+
+            <div class="shop-tabs">
+                <div class="shop-tab active" data-tab="items" onclick="ShopManager.switchTab('items')">アイテム</div>
+                <div class="shop-tab" data-tab="moves" onclick="ShopManager.switchTab('moves')">わざ</div>
+                <div class="shop-tab" data-tab="special" onclick="ShopManager.switchTab('special')">スペシャル</div>
+            </div>
+
+            <div class="shop-content" id="shop-content"></div>
+
+            <button class="ans-btn" style="background:#7f8c8d; height:50px; width:80%; margin-top:20px;" onclick="ShopManager.close()">
+                もどる
+            </button>
+        </div>
+
+        <!-- ==================== わざへんせい画面 ==================== -->
+        <div id="move-equip-screen" style="display: none; color:white;">
+            <h2 style="color:#ffcc00; text-shadow:2px 2px 0 #000;">わざへんせい</h2>
+
+            <div class="equip-section">
+                <div class="equip-title">そうびちゅう（4つまで）</div>
+                <div class="equip-slots" id="equip-slots">
+                    <div class="equip-slot empty">— スロット 1</div>
+                    <div class="equip-slot empty">— スロット 2</div>
+                    <div class="equip-slot empty">— スロット 3</div>
+                    <div class="equip-slot empty">— スロット 4</div>
+                </div>
+            </div>
+
+            <div class="move-list-section">
+                <div class="move-list-title">ならった わざ</div>
+                <div class="move-select-list" id="move-select-list"></div>
+            </div>
+
+            <button class="ans-btn" style="background:#7f8c8d; height:50px; width:80%; margin-top:20px;" onclick="MoveManager.closeEquipScreen()">
+                もどる
+            </button>
+        </div>
+
+        <!-- ==================== バトル画面（刷新版） ==================== -->
+        <div id="battle-scene" style="display: none;">
+
+            <!-- ラウンド表示 -->
+            <div id="round-banner"></div>
+            <!-- 一時停止ボタン -->
+            <button id="btn-pause" class="pause-btn" onclick="PauseManager.pause()">⏸</button>
+
+            <!-- ===== エフェクトレイヤー ===== -->
+            <div id="effect-layer">
+                <!-- 炎エフェクト -->
+                <div id="fx-fire" class="fx-fire">
+                    <div class="fx-fire-particle"></div>
+                    <div class="fx-fire-particle"></div>
+                    <div class="fx-fire-particle"></div>
+                    <div class="fx-fire-particle"></div>
+                    <div class="fx-fire-particle"></div>
+                </div>
+
+                <!-- 雷エフェクト -->
+                <div id="fx-thunder" class="fx-thunder">
+                    <div class="fx-thunder-flash"></div>
+                    <svg class="fx-thunder-bolt" viewBox="0 0 40 120" xmlns="http://www.w3.org/2000/svg">
+                        <polyline points="20,0 12,35 25,40 8,75 22,78 5,120" fill="none" stroke="#b4dcff" stroke-width="3" stroke-linecap="round"/>
+                        <polyline points="20,0 12,35 25,40 8,75 22,78 5,120" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <svg class="fx-thunder-bolt" viewBox="0 0 32 100" xmlns="http://www.w3.org/2000/svg">
+                        <polyline points="16,0 22,30 10,38 24,65 12,70 20,100" fill="none" stroke="#b4dcff" stroke-width="2.5" stroke-linecap="round"/>
+                        <polyline points="16,0 22,30 10,38 24,65 12,70 20,100" fill="none" stroke="#ffffff" stroke-width="1" stroke-linecap="round"/>
+                    </svg>
+                </div>
+
+                <!-- 敵攻撃エフェクト -->
+                <div id="fx-enemy-attack" class="fx-enemy-attack">
+                    <div class="fx-damage-flash"></div>
+                    <div class="fx-claw"></div>
+                    <div class="fx-claw"></div>
+                    <div class="fx-claw"></div>
+                </div>
+
+                <!-- 正解エフェクト -->
+                <div id="fx-correct-flash" class="fx-correct-flash"></div>
+                <div id="fx-correct-circle" class="fx-correct-circle"></div>
+
+                <!-- 不正解エフェクト -->
+                <div id="fx-wrong-flash" class="fx-wrong-flash"></div>
+                <div id="fx-wrong-x" class="fx-wrong-x"></div>
+
+                <!-- バーストエフェクト -->
+                <div id="fx-burst" class="fx-burst">
+                    <div class="fx-burst-ring"></div>
+                    <div class="fx-burst-ring"></div>
+                    <div class="fx-burst-ring"></div>
+                    <div class="fx-burst-spark"></div>
+                    <div class="fx-burst-spark"></div>
+                    <div class="fx-burst-spark"></div>
+                    <div class="fx-burst-spark"></div>
+                    <div class="fx-burst-spark"></div>
+                    <div class="fx-burst-spark"></div>
+                    <div class="fx-burst-spark"></div>
+                    <div class="fx-burst-spark"></div>
+                </div>
+            </div>
+
+            <!-- ===== 上段：敵エリア ===== -->
+            <div id="enemy-area">
+                <div class="fighter-info enemy-info">
+                    <span id="enemy-name" class="fighter-name">てきモンスター</span>
+                    <div class="hp-bar-wrap">
+                        <div id="enemy-hp-bar" class="hp-bar"><div id="enemy-hp-fill" class="hp-fill"></div></div>
+                        <span id="enemy-hp-text" class="hp-text">50/50</span>
+                    </div>
+                </div>
+                <div class="fighter-img-wrap enemy-img-wrap">
+                    <img id="enemy-img" src="assets/images/enemy_01.png" alt="てきドラゴン">
+                </div>
+            </div>
+
+            <!-- ===== VS + コンボ表示 ===== -->
+            <div id="vs-divider">
+                <span class="vs-text">VS</span>
+                <div id="combo-message" class="combo-text"></div>
+            </div>
+
+            <!-- ===== 下段：味方エリア ===== -->
+            <div id="player-area">
+                <div class="fighter-img-wrap player-img-wrap">
+                    <img id="player-img" src="" alt="じぶん">
+                </div>
+                <div class="fighter-info player-info">
+                    <div class="player-name-row">
+                        <span id="evolution-text" class="fighter-name"></span>
+                        <span class="player-lv">Lv.<span id="level-display">1</span></span>
+                    </div>
+                    <div class="hp-bar-wrap">
+                        <div id="player-hp-bar" class="hp-bar"><div id="player-hp-fill" class="hp-fill"></div></div>
+                        <span id="player-hp-text" class="hp-text">60/60</span>
+                    </div>
+                    <div class="exp-bar-wrap">
+                        <span class="exp-label">EXP</span>
+                        <div class="exp-container"><div id="exp-bar-fill" class="exp-fill"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== コマンドメニュー ===== -->
+            <div id="command-menu" style="display:none;">
+                <div id="battle-message-box" class="battle-msg-box">戦え！</div>
+                <div class="command-grid">
+                    <button class="cmd-btn cmd-fight" onclick="GameManager.onFight()">戦う</button>
+                    <button class="cmd-btn cmd-item" onclick="GameManager.onItem()">アイテム</button>
+                    <button class="cmd-btn cmd-switch" disabled>交代</button>
+                    <button class="cmd-btn cmd-run" onclick="GameManager.onRun()">逃げる</button>
+                </div>
+            </div>
+
+            <!-- ===== 技選択メニュー ===== -->
+            <div id="move-select-menu" style="display:none;">
+                <div class="move-list" id="move-list"></div>
+                <button class="cmd-btn-back" onclick="UIManager.showCommandMenu()">もどる</button>
+            </div>
+
+            <!-- ===== アイテム選択メニュー ===== -->
+            <div id="item-select-menu" style="display:none;">
+                <div class="item-list" id="item-list"></div>
+                <button class="cmd-btn-back" onclick="UIManager.showCommandMenu()">もどる</button>
+            </div>
+
+            <!-- ===== 問題 & 回答ボタン（トレーニング/おしごと用） ===== -->
+            <div id="battle-bottom">
+                <div id="question-area">
+                    <div id="question-text">準備中...</div>
+                </div>
+                <div id="answer-buttons">
+                    <button class="ans-btn" id="btn-1">-</button>
+                    <button class="ans-btn" id="btn-2">-</button>
+                    <button class="ans-btn" id="btn-3">-</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 勝利画面 ==================== -->
+        <div id="victory-screen" class="result-screen">
+            <!-- 星キラキラ -->
+            <div class="victory-stars">
+                <div class="victory-star"></div>
+                <div class="victory-star"></div>
+                <div class="victory-star"></div>
+                <div class="victory-star"></div>
+                <div class="victory-star"></div>
+                <div class="victory-star"></div>
+                <div class="victory-star"></div>
+                <div class="victory-star"></div>
+            </div>
+
+            <!-- 光の輪 -->
+            <div class="victory-glow"></div>
+
+            <!-- 紙吹雪 -->
+            <div class="confetti-container" id="confetti-container">
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+            </div>
+
+            <!-- トロフィー -->
+            <div class="trophy-container">
+                <span class="trophy-icon" id="trophy-icon">🏆</span>
+                <div class="trophy-shine"></div>
+            </div>
+
+            <!-- テキスト -->
+            <div class="victory-content">
+                <div class="victory-title">ゆうしょう！</div>
+                <div class="victory-cupname" id="victory-cupname">ビギナー杯</div>
+                <div class="victory-subtitle">を せいはした！</div>
+            </div>
+
+            <!-- ドラゴン画像 -->
+            <div class="victory-dragon">
+                <img id="victory-dragon-img" src="" alt="チャンピオンドラゴン">
+            </div>
+
+            <!-- 報酬 -->
+            <div class="victory-reward">
+                <div class="reward-label">しょうきん</div>
+                <div class="reward-value">EXP +<span id="victory-reward-exp">0</span></div>
+            </div>
+
+            <!-- ボタン -->
+            <button class="result-btn btn-victory-next" id="btn-victory-next">
+                つぎも がんばるぞ！
+            </button>
+        </div>
+
+        <!-- ==================== 敗北画面 ==================== -->
+        <div id="defeat-screen" class="result-screen">
+            <!-- 暗いパーティクル -->
+            <div class="defeat-particles" id="defeat-particles">
+                <div class="defeat-particle"></div>
+                <div class="defeat-particle"></div>
+                <div class="defeat-particle"></div>
+                <div class="defeat-particle"></div>
+                <div class="defeat-particle"></div>
+                <div class="defeat-particle"></div>
+                <div class="defeat-particle"></div>
+                <div class="defeat-particle"></div>
+                <div class="defeat-particle"></div>
+                <div class="defeat-particle"></div>
+            </div>
+
+            <!-- アイコン -->
+            <div class="defeat-icon-area">
+                <span class="defeat-icon">😢</span>
+            </div>
+
+            <!-- ドラゴン画像 -->
+            <div class="defeat-dragon">
+                <img id="defeat-dragon-img" src="" alt="ドラゴン">
+            </div>
+
+            <!-- テキスト -->
+            <div class="defeat-content">
+                <div class="defeat-title">まけてしまった……</div>
+                <div class="defeat-message">
+                    でも だいじょうぶ！<br>
+                    キミのドラゴンは<br>
+                    まだまだ つよくなれる！
+                </div>
+                <div class="defeat-encourage">💪 特訓してリベンジだ！</div>
+            </div>
+
+            <!-- ボタン -->
+            <button class="result-btn btn-defeat-train" id="btn-defeat-train">
+                特訓する！
+            </button>
+            <button class="result-btn btn-defeat-home" id="btn-defeat-home">
+                ホームに戻る
+            </button>
+        </div>
+
+    </div>
+
+    <script src="config.js"></script>
+    <script src="state.js"></script>
+    <script src="questions.js"></script>
+    <script src="sound.js"></script>
+    <script src="effects.js"></script>
+    <script src="modal.js"></script>
+    <script src="ui.js"></script>
+    <script src="storage.js"></script>
+    <script src="transition.js"></script>
+    <script src="settings.js"></script>
+    <script src="pause.js"></script>
+    <script src="tutorial.js"></script>
+    <script src="achievement.js"></script>
+    <script src="zukan.js"></script>
+    <script src="training.js"></script>
+    <script src="result.js"></script>
+    <script src="cup.js"></script>
+    <script src="endless.js"></script>
+    <script src="battle-ai.js"></script>
+    <script src="moves.js"></script>
+
+    <script src="game.js"></script>
+
+    <script src="work.js"></script>
+    <script src="shop.js"></script>
+
+<script>
+    // 画面が読み込まれた時に実行
+    window.onload = function() {
+        // サウンドエンジン初期化（ファイルが無くてもエラーにならない）
+        SoundManager.init();
+
+        // しごとモードの設定初期化
+        WorkManager.init();
+
+        // 初回チュートリアル
+        if (TutorialManager.shouldShow()) {
+            TutorialManager.start();
+        }
+
+        if (StorageManager.load()) {
+            const charName = (GameState.selectedCharacterType === 'blue') ? '王龍' : 'ファイヤードレイク';
+
+            // Move unlock check
+            GameState._checkLearnMoves();
+
+            ModalManager.showSaveConfirm(
+                charName,
+                GameState.playerLevel,
+                // 「つづきから」を押した場合
+                function() {
+                    TrainingManager.updateHomeDisplay();
+                    TransitionManager.fade("select-screen", "home-screen", "block", () => {
+                        SoundManager.playBGM("bgm_home");
+                    });
+                },
+                // 「さいしょから」を押した場合
+                function() {
+                    StorageManager.clear();
+                }
+            );
+        }
+    };
+</script>
+
+</body>
+</html>
