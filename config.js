@@ -359,33 +359,33 @@ const GameConfig = {
             label: "岩砕き（攻撃 UP）",
             icon: "🪨",
             color: "#e67e22",
-            questionTypes: ["addition", "subtraction"],
-            maxNum: 15,
-            description: "大きな数の計算でパワーUP！"
+            questionTypes: ["multiplication", "division", "decimalMul"],
+            maxNum: 100,
+            description: "掛け算・割り算でパワーUP！"
         },
         speed: {
             label: "猛ダッシュ（素早さ UP）",
             icon: "💨",
             color: "#3498db",
-            questionTypes: ["makeTen", "doubles", "addition"],
-            maxNum: 10,
-            description: "素早く答えてスピードUP！"
+            questionTypes: ["addition", "subtraction", "decimalAdd", "decimalSub"],
+            maxNum: 999,
+            description: "素早く計算してスピードUP！"
         },
         defense: {
             label: "めいそう（防御 UP）",
             icon: "🛡️",
             color: "#9b59b6",
-            questionTypes: ["fillBlankAdd", "fillBlankSub", "compare"],
-            maxNum: 15,
-            description: "じっくり考えて防御UP！"
+            questionTypes: ["fillBlankAdd", "fillBlankSub", "fillBlankMul", "fillBlankDiv", "compare"],
+            maxNum: 500,
+            description: "穴あき問題でじっくり防御UP！"
         },
         hp: {
             label: "体力UP（HP UP）",
             icon: "❤️",
             color: "#2ecc71",
-            questionTypes: ["addCarry", "subBorrow", "threeNum"],
-            maxNum: 18,
-            description: "むずかしい問題で体力UP！"
+            questionTypes: ["fractionAdd", "fractionSub", "orderOps"],
+            maxNum: 100,
+            description: "分数・計算順序で体力UP！"
         }
     },
     trainingMaxQuestions: 5,
@@ -400,8 +400,8 @@ const GameConfig = {
             duration: 60,       // 秒
             baseReward: 10,     // 1問あたりのゴールド
             comboBonus: 5,      // 最大コンボ × この値がボーナス
-            questionTypes: ["addition", "subtraction", "doubles", "makeTen", "fillBlankAdd"],
-            maxNum: 15
+            questionTypes: ["addition", "subtraction", "multiplication", "decimalAdd", "fillBlankAdd"],
+            maxNum: 500
         }
     },
 
@@ -413,12 +413,12 @@ const GameConfig = {
             { id: "solve_20",    name: "たくさん解こう！",         desc: "問題を 合計20問 解け",               type: "any",          target: 20, timeLimit: 0,  reward: 40  }
         ],
         normal: [
-            { id: "make_ten_5",  name: "10を作れ！",              desc: "「10をつくろう」を 5問 正解",         type: "makeTen",      target: 5,  timeLimit: 0,  reward: 80  },
+            { id: "mul_5",       name: "掛け算チャレンジ",        desc: "掛け算を 5問 正解せよ",              type: "multiplication", target: 5,  timeLimit: 0,  reward: 80  },
             { id: "blank_5",     name: "穴うめ名人",              desc: "穴うめ問題を 5問 正解せよ",           type: "fillBlank",    target: 5,  timeLimit: 0,  reward: 70  },
             { id: "fast_5",      name: "早解き王",                desc: "5問を 30秒以内に 全問正解",          type: "speed",        target: 5,  timeLimit: 30, reward: 120 }
         ],
         hard: [
-            { id: "carry_6",     name: "くり上がりの達人",         desc: "くり上がり足し算を 6問 正解",         type: "addCarry",     target: 6,  timeLimit: 0,  reward: 100 },
+            { id: "frac_6",      name: "分数の達人",              desc: "分数の問題を 6問 正解せよ",           type: "fractionAdd",  target: 6,  timeLimit: 0,  reward: 100 },
             { id: "perfect_10",  name: "パーフェクト！",           desc: "10問 連続 正解せよ",                 type: "any",          target: 10, timeLimit: 0,  reward: 150, needsConsecutive: true },
             { id: "combo_8",     name: "コンボマスター",           desc: "タイムアタックで 8コンボ達成",        type: "combo",        target: 8,  timeLimit: 0,  reward: 130 }
         ]
@@ -446,37 +446,37 @@ const GameConfig = {
     //  13. 旧互換：ステージ設定（とっくんで使用）
     // ==========================================
     stages: {
-        1: { name: "カンタン",    type: "addition",    maxNum: 10 },
-        2: { name: "ふつう",      type: "subtraction",  maxNum: 15 },
-        3: { name: "むずかしい",  type: "addCarry",     maxNum: 20 }
+        1: { name: "カンタン",    type: "addition",        maxNum: 100 },
+        2: { name: "ふつう",      type: "multiplication",  maxNum: 100 },
+        3: { name: "むずかしい",  type: "orderOps",        maxNum: 100 }
     },
 
     // 大会別ステージ設定（しごとモードでも参照）
     cupStages: {
         1: {
-            1: { type: ["addition", "doubles"],              maxNum: 10 },
-            2: { type: ["addition", "subtraction"],          maxNum: 10 },
-            3: { type: ["addition", "subtraction", "makeTen"], maxNum: 10 }
+            1: { type: ["addition", "subtraction"],                    maxNum: 200 },
+            2: { type: ["addition", "subtraction", "multiplication"],  maxNum: 200 },
+            3: { type: ["multiplication", "division", "fillBlankAdd"], maxNum: 200 }
         },
         2: {
-            1: { type: ["addition", "subtraction"],              maxNum: 15 },
-            2: { type: ["addition", "subtraction", "fillBlankAdd"], maxNum: 15 },
-            3: { type: ["fillBlankAdd", "fillBlankSub", "doubles"], maxNum: 20 }
+            1: { type: ["multiplication", "division", "decimalAdd"],           maxNum: 500 },
+            2: { type: ["decimalAdd", "decimalSub", "fillBlankAdd"],           maxNum: 500 },
+            3: { type: ["fillBlankMul", "fillBlankDiv", "decimalMul"],         maxNum: 500 }
         },
         3: {
-            1: { type: ["addCarry", "subtraction"],             maxNum: 18 },
-            2: { type: ["addCarry", "subBorrow", "compare"],    maxNum: 18 },
-            3: { type: ["subBorrow", "compare", "fillBlankAdd"], maxNum: 20 }
+            1: { type: ["decimalAdd", "decimalSub", "decimalMul"],             maxNum: 500 },
+            2: { type: ["fractionAdd", "fractionSub", "compare"],              maxNum: 500 },
+            3: { type: ["fractionAdd", "fractionSub", "fillBlankMul", "fillBlankDiv"], maxNum: 500 }
         },
         4: {
-            1: { type: ["addCarry", "subBorrow", "threeNum"],       maxNum: 20 },
-            2: { type: ["threeNum", "fillBlankSub", "compare"],     maxNum: 20 },
-            3: { type: ["addCarry", "subBorrow", "threeNum", "fillBlankSub"], maxNum: 20 }
+            1: { type: ["fractionAdd", "fractionSub", "orderOps"],                 maxNum: 999 },
+            2: { type: ["orderOps", "fillBlankMul", "fillBlankDiv", "compare"],    maxNum: 999 },
+            3: { type: ["fractionAdd", "fractionSub", "orderOps", "decimalMul"],   maxNum: 999 }
         },
         5: {
-            1: { type: ["addCarry", "subBorrow", "threeNum", "compare"],           maxNum: 20 },
-            2: { type: ["threeNum", "fillBlankAdd", "fillBlankSub", "subBorrow"],  maxNum: 20 },
-            3: { type: ["addCarry", "subBorrow", "threeNum", "fillBlankAdd", "fillBlankSub", "compare"], maxNum: 20 }
+            1: { type: ["orderOps", "fractionAdd", "fractionSub", "compare"],                       maxNum: 999 },
+            2: { type: ["fillBlankMul", "fillBlankDiv", "decimalMul", "orderOps"],                   maxNum: 999 },
+            3: { type: ["fractionAdd", "fractionSub", "orderOps", "fillBlankMul", "fillBlankDiv", "compare"], maxNum: 999 }
         }
     }
 };

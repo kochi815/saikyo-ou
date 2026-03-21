@@ -1,17 +1,14 @@
 // questions.js
 // 算数の問題と、3択の選択肢を作成するファイル
-// ★Step 8 で大幅拡張：8種類の問題タイプ対応
+// 小学校5年生向け：四則演算・小数・分数・穴あき算・計算順序
 
 const QuestionGenerator = {
 
     // ==========================================
-    //  メイン機能：ステージ設定に合わせて問題を作る
-    //  stageId は旧互換用。cupId があれば大会別設定を使う
+    //  メイン機能：設定に合わせて問題を作る
     // ==========================================
     generate: function(stageId, cupIdOrConfig) {
-        // 大会別の設定を取得
         let stageConfig;
-        // 第2引数がオブジェクトの場合、直接configとして使用（特訓モード等）
         if (cupIdOrConfig && typeof cupIdOrConfig === 'object' && cupIdOrConfig.type) {
             stageConfig = cupIdOrConfig;
         } else if (cupIdOrConfig && GameConfig.cupStages && GameConfig.cupStages[cupIdOrConfig]) {
@@ -21,16 +18,14 @@ const QuestionGenerator = {
             stageConfig = GameConfig.stages[stageId] || GameConfig.stages[1];
         }
 
-        // 問題タイプがリスト（配列）の場合、ランダムに1つ選ぶ
         let problemType = stageConfig.type;
         if (Array.isArray(problemType)) {
             problemType = problemType[Math.floor(Math.random() * problemType.length)];
         }
 
-        const maxNum = stageConfig.maxNum || 10;
+        const maxNum = stageConfig.maxNum || 100;
         let questionData = {};
 
-        // 問題タイプごとに生成
         switch (problemType) {
             case "addition":
                 questionData = this.makeAddition(maxNum);
@@ -38,11 +33,26 @@ const QuestionGenerator = {
             case "subtraction":
                 questionData = this.makeSubtraction(maxNum);
                 break;
-            case "addCarry":
-                questionData = this.makeAddCarry();
+            case "multiplication":
+                questionData = this.makeMultiplication(maxNum);
                 break;
-            case "subBorrow":
-                questionData = this.makeSubBorrow();
+            case "division":
+                questionData = this.makeDivision(maxNum);
+                break;
+            case "decimalAdd":
+                questionData = this.makeDecimalAdd();
+                break;
+            case "decimalSub":
+                questionData = this.makeDecimalSub();
+                break;
+            case "decimalMul":
+                questionData = this.makeDecimalMul();
+                break;
+            case "fractionAdd":
+                questionData = this.makeFractionAdd();
+                break;
+            case "fractionSub":
+                questionData = this.makeFractionSub();
                 break;
             case "fillBlankAdd":
                 questionData = this.makeFillBlankAdd(maxNum);
@@ -50,17 +60,17 @@ const QuestionGenerator = {
             case "fillBlankSub":
                 questionData = this.makeFillBlankSub(maxNum);
                 break;
+            case "fillBlankMul":
+                questionData = this.makeFillBlankMul(maxNum);
+                break;
+            case "fillBlankDiv":
+                questionData = this.makeFillBlankDiv(maxNum);
+                break;
+            case "orderOps":
+                questionData = this.makeOrderOps();
+                break;
             case "compare":
-                questionData = this.makeCompare(maxNum);
-                break;
-            case "threeNum":
-                questionData = this.makeThreeNum(maxNum);
-                break;
-            case "doubles":
-                questionData = this.makeDoubles(maxNum);
-                break;
-            case "makeTen":
-                questionData = this.makeMakeTen();
+                questionData = this.makeCompare();
                 break;
             default:
                 questionData = this.makeAddition(maxNum);
@@ -76,168 +86,284 @@ const QuestionGenerator = {
     },
 
     // ==========================================
-    //  足し算 (A + B = ?)
+    //  ヘルパー：ランダム整数
+    // ==========================================
+    _randInt: function(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
+
+    // ==========================================
+    //  足し算 (3桁+3桁)
     // ==========================================
     makeAddition: function(maxNum) {
-        const a = Math.floor(Math.random() * (maxNum - 1)) + 1;
-        const b = Math.floor(Math.random() * (maxNum - a)) + 1;
-        return {
-            text: `${a} + ${b} = ?`,
-            answer: a + b
-        };
+        const limit = Math.min(maxNum, 999);
+        const a = this._randInt(10, limit);
+        const b = this._randInt(10, limit);
+        return { text: `${a} + ${b} = ?`, answer: a + b };
     },
 
     // ==========================================
-    //  引き算 (A - B = ?)
+    //  引き算 (3桁−3桁、答えは正)
     // ==========================================
     makeSubtraction: function(maxNum) {
-        const a = Math.floor(Math.random() * (maxNum - 1)) + 2;
-        const b = Math.floor(Math.random() * (a - 1)) + 1;
+        const limit = Math.min(maxNum, 999);
+        let a = this._randInt(20, limit);
+        let b = this._randInt(10, a - 1);
+        return { text: `${a} - ${b} = ?`, answer: a - b };
+    },
+
+    // ==========================================
+    //  掛け算 (2桁×1〜2桁)
+    // ==========================================
+    makeMultiplication: function(maxNum) {
+        const a = this._randInt(2, Math.min(maxNum, 99));
+        const bMax = a >= 10 ? 19 : Math.min(maxNum, 99);
+        const b = this._randInt(2, bMax);
+        return { text: `${a} × ${b} = ?`, answer: a * b };
+    },
+
+    // ==========================================
+    //  割り算 (割り切れる)
+    // ==========================================
+    makeDivision: function(maxNum) {
+        const b = this._randInt(2, 12);
+        const quotient = this._randInt(2, Math.min(Math.floor(maxNum / b), 50));
+        const a = b * quotient;
+        return { text: `${a} ÷ ${b} = ?`, answer: quotient };
+    },
+
+    // ==========================================
+    //  小数の足し算 (例: 2.3 + 1.8 = ?)
+    // ==========================================
+    makeDecimalAdd: function() {
+        const a = (this._randInt(11, 99) / 10); // 1.1 ~ 9.9
+        const b = (this._randInt(11, 99) / 10);
+        const answer = Math.round((a + b) * 10) / 10;
+        return { text: `${a.toFixed(1)} + ${b.toFixed(1)} = ?`, answer: answer };
+    },
+
+    // ==========================================
+    //  小数の引き算 (例: 5.6 - 2.3 = ?)
+    // ==========================================
+    makeDecimalSub: function() {
+        let a = (this._randInt(30, 99) / 10); // 3.0 ~ 9.9
+        let b = (this._randInt(11, Math.floor(a * 10) - 1) / 10);
+        const answer = Math.round((a - b) * 10) / 10;
+        return { text: `${a.toFixed(1)} - ${b.toFixed(1)} = ?`, answer: answer };
+    },
+
+    // ==========================================
+    //  小数×整数 (例: 2.5 × 4 = ?)
+    // ==========================================
+    makeDecimalMul: function() {
+        const a = (this._randInt(11, 49) / 10); // 1.1 ~ 4.9
+        const b = this._randInt(2, 9);
+        const answer = Math.round(a * b * 10) / 10;
+        return { text: `${a.toFixed(1)} × ${b} = ?`, answer: answer };
+    },
+
+    // ==========================================
+    //  分数の足し算 (通分あり)
+    //  例: 1/3 + 1/4 = 7/12
+    //  答えは「分子」で出題（分母を表示）
+    // ==========================================
+    makeFractionAdd: function() {
+        // 分母のペアを用意（通分しやすいもの）
+        const pairs = [
+            [2, 3], [2, 5], [3, 4], [3, 5], [4, 5],
+            [2, 7], [3, 7], [4, 7], [5, 6], [3, 8]
+        ];
+        const [d1, d2] = pairs[this._randInt(0, pairs.length - 1)];
+        const n1 = this._randInt(1, d1 - 1);
+        const n2 = this._randInt(1, d2 - 1);
+        const lcm = this._lcm(d1, d2);
+        const answerNumerator = n1 * (lcm / d1) + n2 * (lcm / d2);
+        // 約分
+        const g = this._gcd(answerNumerator, lcm);
+        const finalN = answerNumerator / g;
+        const finalD = lcm / g;
+
         return {
-            text: `${a} - ${b} = ?`,
-            answer: a - b
+            text: `${n1}/${d1} + ${n2}/${d2} = ?/${finalD}`,
+            answer: finalN
         };
     },
 
     // ==========================================
-    //  繰り上がり足し算 (例: 7 + 8 = 15)
-    //  答えが11〜18になる問題
+    //  分数の引き算 (通分あり)
+    //  例: 3/4 - 1/3 = 5/12
     // ==========================================
-    makeAddCarry: function() {
-        // A: 2〜9, B: 答えが10を超えるように
-        const a = Math.floor(Math.random() * 8) + 2; // 2〜9
-        const minB = Math.max(2, 11 - a); // 答えが11以上になるB の最小値
-        const maxB = Math.min(9, 18 - a); // 答えが18以下になるBの最大値
-        const b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
+    makeFractionSub: function() {
+        const pairs = [
+            [2, 3], [2, 5], [3, 4], [3, 5], [4, 5],
+            [2, 7], [3, 7], [4, 7], [5, 6], [3, 8]
+        ];
+        const [d1, d2] = pairs[this._randInt(0, pairs.length - 1)];
+        const lcm = this._lcm(d1, d2);
+
+        // a/d1 - b/d2 が正になるように
+        let n1, n2, resultNumerator;
+        do {
+            n1 = this._randInt(1, d1 - 1);
+            n2 = this._randInt(1, d2 - 1);
+            resultNumerator = n1 * (lcm / d1) - n2 * (lcm / d2);
+        } while (resultNumerator <= 0);
+
+        const g = this._gcd(resultNumerator, lcm);
+        const finalN = resultNumerator / g;
+        const finalD = lcm / g;
+
         return {
-            text: `${a} + ${b} = ?`,
-            answer: a + b
+            text: `${n1}/${d1} - ${n2}/${d2} = ?/${finalD}`,
+            answer: finalN
         };
     },
 
     // ==========================================
-    //  繰り下がり引き算 (例: 15 - 8 = 7)
-    //  被減数が11〜18、引く数で一の位を下回る
-    // ==========================================
-    makeSubBorrow: function() {
-        const a = Math.floor(Math.random() * 8) + 11; // 11〜18
-        const onesA = a % 10;
-        // 引く数はonesAより大きい（繰り下がりが発生する）
-        const minB = onesA + 1;
-        const maxB = Math.min(9, a - 2); // 答えが2以上になるように
-        if (minB > maxB) {
-            // フォールバック
-            return { text: `${a} - ${onesA} = ?`, answer: a - onesA };
-        }
-        const b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
-        return {
-            text: `${a} - ${b} = ?`,
-            answer: a - b
-        };
-    },
-
-    // ==========================================
-    //  穴埋め足し算 (□ + B = C)
+    //  穴あき足し算 (□ + B = C)
     // ==========================================
     makeFillBlankAdd: function(maxNum) {
-        const answer = Math.floor(Math.random() * (maxNum - 2)) + 1; // □ の値
-        const b = Math.floor(Math.random() * (maxNum - answer)) + 1;
+        const answer = this._randInt(10, Math.min(maxNum, 500));
+        const b = this._randInt(10, Math.min(maxNum, 500));
         const total = answer + b;
-        return {
-            text: `□ + ${b} = ${total}`,
-            answer: answer
-        };
+        return { text: `□ + ${b} = ${total}`, answer: answer };
     },
 
     // ==========================================
-    //  穴埋め引き算 (A - □ = C)
+    //  穴あき引き算 (A - □ = C)
     // ==========================================
     makeFillBlankSub: function(maxNum) {
-        const a = Math.floor(Math.random() * (maxNum - 2)) + 3; // 3以上
-        const answer = Math.floor(Math.random() * (a - 1)) + 1; // □ の値
+        const a = this._randInt(30, Math.min(maxNum, 999));
+        const answer = this._randInt(10, a - 10);
         const result = a - answer;
-        return {
-            text: `${a} - □ = ${result}`,
-            answer: answer
-        };
+        return { text: `${a} - □ = ${result}`, answer: answer };
     },
 
     // ==========================================
-    //  比較問題 (A ○ B、どっちが大きい？)
-    //  選択肢が特殊（>, <, = の3択）
+    //  穴あき掛け算 (□ × B = C)
     // ==========================================
-    makeCompare: function(maxNum) {
-        // 2つの式を作って比較させる
-        const a1 = Math.floor(Math.random() * maxNum) + 1;
-        const a2 = Math.floor(Math.random() * (maxNum - a1)) + 1;
-        const leftVal = a1 + a2;
+    makeFillBlankMul: function(maxNum) {
+        const answer = this._randInt(2, Math.min(maxNum, 20));
+        const b = this._randInt(2, 12);
+        const product = answer * b;
+        return { text: `□ × ${b} = ${product}`, answer: answer };
+    },
 
-        // 右辺を生成（同じ場合もある）
+    // ==========================================
+    //  穴あき割り算 (A ÷ □ = C)
+    // ==========================================
+    makeFillBlankDiv: function(maxNum) {
+        const answer = this._randInt(2, 12); // □ の値（割る数）
+        const c = this._randInt(2, Math.min(Math.floor(maxNum / answer), 30));
+        const a = answer * c;
+        return { text: `${a} ÷ □ = ${c}`, answer: answer };
+    },
+
+    // ==========================================
+    //  計算の順序（四則混合）
+    //  例: 3 + 4 × 2 = ?
+    // ==========================================
+    makeOrderOps: function() {
+        const patterns = [
+            // a + b × c
+            () => {
+                const b = this._randInt(2, 9);
+                const c = this._randInt(2, 9);
+                const a = this._randInt(1, 20);
+                return { text: `${a} + ${b} × ${c} = ?`, answer: a + b * c };
+            },
+            // a × b - c
+            () => {
+                const a = this._randInt(2, 9);
+                const b = this._randInt(2, 9);
+                const product = a * b;
+                const c = this._randInt(1, product - 1);
+                return { text: `${a} × ${b} - ${c} = ?`, answer: product - c };
+            },
+            // a × b + c × d (小さめの数)
+            () => {
+                const a = this._randInt(2, 5);
+                const b = this._randInt(2, 5);
+                const c = this._randInt(2, 5);
+                const d = this._randInt(2, 5);
+                return { text: `${a} × ${b} + ${c} × ${d} = ?`, answer: a * b + c * d };
+            },
+            // (a + b) × c
+            () => {
+                const a = this._randInt(2, 10);
+                const b = this._randInt(2, 10);
+                const c = this._randInt(2, 6);
+                return { text: `(${a} + ${b}) × ${c} = ?`, answer: (a + b) * c };
+            },
+            // a - b ÷ c (割り切れる)
+            () => {
+                const c = this._randInt(2, 6);
+                const quotient = this._randInt(2, 8);
+                const b = c * quotient;
+                const a = this._randInt(b, b + 20);
+                return { text: `${a} - ${b} ÷ ${c} = ?`, answer: a - quotient };
+            }
+        ];
+
+        const fn = patterns[this._randInt(0, patterns.length - 1)];
+        return fn();
+    },
+
+    // ==========================================
+    //  大小比較 (式 vs 式)
+    // ==========================================
+    makeCompare: function() {
+        // 2つの計算式を作って比較
+        const makeExpr = () => {
+            const type = this._randInt(0, 2);
+            if (type === 0) {
+                const a = this._randInt(10, 50);
+                const b = this._randInt(10, 50);
+                return { text: `${a}+${b}`, val: a + b };
+            } else if (type === 1) {
+                const a = this._randInt(2, 12);
+                const b = this._randInt(2, 12);
+                return { text: `${a}×${b}`, val: a * b };
+            } else {
+                const a = this._randInt(30, 99);
+                const b = this._randInt(1, a - 1);
+                return { text: `${a}-${b}`, val: a - b };
+            }
+        };
+
+        const left = makeExpr();
+        let right;
         const roll = Math.random();
-        let rightVal;
         if (roll < 0.33) {
-            rightVal = leftVal; // 同じ
-        } else if (roll < 0.66) {
-            rightVal = leftVal + Math.floor(Math.random() * 3) + 1; // 右が大きい
+            right = { text: String(left.val), val: left.val }; // 同じ値
         } else {
-            rightVal = Math.max(1, leftVal - Math.floor(Math.random() * 3) - 1); // 左が大きい
+            right = makeExpr();
         }
 
-        // 右辺を式にする（単純な数字で表示）
         let correctAnswer;
-        if (leftVal > rightVal) {
-            correctAnswer = 1; // >
-        } else if (leftVal < rightVal) {
-            correctAnswer = 2; // <
-        } else {
-            correctAnswer = 3; // =
-        }
+        if (left.val > right.val) correctAnswer = 1;
+        else if (left.val < right.val) correctAnswer = 2;
+        else correctAnswer = 3;
 
         return {
-            text: `${a1}+${a2} ○ ${rightVal}`,
+            text: `${left.text} ○ ${right.text}`,
             answer: correctAnswer,
             options: [1, 2, 3],
-            // UIで表示するためのラベル
             optionLabels: [">", "<", "="]
         };
     },
 
     // ==========================================
-    //  3つの数の足し算 (A + B + C = ?)
+    //  数学ヘルパー
     // ==========================================
-    makeThreeNum: function(maxNum) {
-        const limit = Math.min(maxNum, 20);
-        const a = Math.floor(Math.random() * Math.floor(limit / 3)) + 1;
-        const b = Math.floor(Math.random() * Math.floor((limit - a) / 2)) + 1;
-        const maxC = Math.min(limit - a - b, 9);
-        const c = Math.floor(Math.random() * maxC) + 1;
-        return {
-            text: `${a} + ${b} + ${c} = ?`,
-            answer: a + b + c
-        };
+    _gcd: function(a, b) {
+        a = Math.abs(a); b = Math.abs(b);
+        while (b) { [a, b] = [b, a % b]; }
+        return a;
     },
 
-    // ==========================================
-    //  同じ数の足し算（ダブルス） (A + A = ?)
-    // ==========================================
-    makeDoubles: function(maxNum) {
-        const half = Math.floor(maxNum / 2);
-        const a = Math.floor(Math.random() * half) + 1;
-        return {
-            text: `${a} + ${a} = ?`,
-            answer: a + a
-        };
-    },
-
-    // ==========================================
-    //  10をつくろう！ (A + □ = 10)
-    // ==========================================
-    makeMakeTen: function() {
-        const a = Math.floor(Math.random() * 9) + 1; // 1〜9
-        return {
-            text: `${a} + □ = 10`,
-            answer: 10 - a
-        };
+    _lcm: function(a, b) {
+        return (a * b) / this._gcd(a, b);
     },
 
     // ==========================================
@@ -247,11 +373,18 @@ const QuestionGenerator = {
         const options = new Set();
         options.add(correctAnswer);
 
+        // 答えの大きさに応じてダミーの幅を調整
+        const range = Math.max(5, Math.ceil(Math.abs(correctAnswer) * 0.2));
+
         while (options.size < 3) {
-            const offset = Math.floor(Math.random() * 7) - 3;
+            const offset = this._randInt(1, range) * (Math.random() < 0.5 ? 1 : -1);
             const dummy = correctAnswer + offset;
             if (dummy >= 0 && dummy !== correctAnswer) {
-                options.add(dummy);
+                // 小数の場合は丸める
+                const rounded = Math.round(dummy * 10) / 10;
+                if (rounded !== correctAnswer && rounded >= 0) {
+                    options.add(rounded);
+                }
             }
         }
 
