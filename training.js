@@ -367,6 +367,15 @@ const TrainingManager = {
             StorageManager.save();
         }
 
+        // 経験値付与（特訓でもレベルアップできる）
+        let xpGain = GameConfig.trainingXp || 20;
+        const isPerfect = (this.correctCount === this.maxQuestions);
+        if (isPerfect) {
+            xpGain += GameConfig.trainingPerfectXp || 10;
+        }
+        const leveledUp = GameState.addExp(xpGain);
+        bonusText += `\n📖 経験値 +${xpGain}`;
+
         // 特訓ビジュアルを片付ける
         this._hideTrainingVisual();
 
@@ -376,10 +385,18 @@ const TrainingManager = {
         // モーダルで結果発表 → 閉じたらホームへ
         StorageManager.save();
         this._showTrainingResultEnhanced(totalGain, bonusText, () => {
-            this.backToHome();
-            SoundManager.playBGM("bgm_home");
-            // 実績チェック
-            AchievementManager.checkAndNotify();
+            // レベルアップ演出
+            if (leveledUp) {
+                ModalManager.showLevelUp(GameState.playerLevel, () => {
+                    this.backToHome();
+                    SoundManager.playBGM("bgm_home");
+                    AchievementManager.checkAndNotify();
+                });
+            } else {
+                this.backToHome();
+                SoundManager.playBGM("bgm_home");
+                AchievementManager.checkAndNotify();
+            }
         });
     },
 

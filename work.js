@@ -385,6 +385,11 @@ const WorkManager = {
         this.updateMissionProgress("combo", this.maxCombo);
         this.updateMissionProgress("any", this.correctCount);
 
+        // 経験値付与（正解数 × workXpPerCorrect）
+        const xpPerCorrect = GameConfig.workXpPerCorrect || 2;
+        const xpGain = this.correctCount * xpPerCorrect;
+        const leveledUp = GameState.addExp(xpGain);
+
         // コンボ演出リセット
         this._updateComboVisual(0);
 
@@ -404,26 +409,36 @@ const WorkManager = {
             resultMsg += `\n  🔥 フィーバー: +${feverGold}G`;
         }
         resultMsg += `\n  合計: <span class="modal-highlight">+${goldReward}G</span>`;
+        resultMsg += `\n\n📖 経験値 +${xpGain}`;
 
-        // 結果モーダルを表示
-        ModalManager.show({
-            title: isNewRecord ? "🎊 新記録達成！" : "タイムアタック終了！",
-            icon: "⏱️",
-            type: "success",
-            message: resultMsg,
-            buttons: [
-                {
-                    text: "もう一度",
-                    class: "primary",
-                    callback: () => this.startTimeAttack()
-                },
-                {
-                    text: "メニューへ",
-                    class: "secondary",
-                    callback: () => this.openMenu()
-                }
-            ]
-        });
+        // レベルアップ後に結果モーダルを表示する関数
+        const showResult = () => {
+            ModalManager.show({
+                title: isNewRecord ? "🎊 新記録達成！" : "タイムアタック終了！",
+                icon: "⏱️",
+                type: "success",
+                message: resultMsg,
+                buttons: [
+                    {
+                        text: "もう一度",
+                        class: "primary",
+                        callback: () => this.startTimeAttack()
+                    },
+                    {
+                        text: "メニューへ",
+                        class: "secondary",
+                        callback: () => this.openMenu()
+                    }
+                ]
+            });
+        };
+
+        // レベルアップ演出 → 結果モーダル
+        if (leveledUp) {
+            ModalManager.showLevelUp(GameState.playerLevel, showResult);
+        } else {
+            showResult();
+        }
     },
 
     // ==========================================

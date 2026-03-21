@@ -21,9 +21,14 @@ const GameConfig = {
     // ==========================================
     //  2. 育成・レベルアップ
     // ==========================================
-    xpWin: 30,
-    xpLose: 10,
+    xpWin: 10,
+    xpLose: 5,
     xpToLevelUp: 100,
+
+    // 特訓・仕事の経験値
+    trainingXp: 20,         // 特訓1回あたりの基本経験値
+    trainingPerfectXp: 10,  // パーフェクトボーナス経験値
+    workXpPerCorrect: 2,    // タイムアタック正解1問あたりの経験値
 
     // ==========================================
     //  3. 属性相性テーブル
@@ -198,56 +203,56 @@ const GameConfig = {
         aqua_storm: {
             name: "みずのうず", type: "water", category: "attack",
             power: 65, accuracy: 85, pp: 5,
-            price: 300,
+            price: 450,
             effect: null,
             description: "はげしい みずの うずまき！"
         },
         earthquake: {
             name: "じしん", type: "ground", category: "attack",
             power: 65, accuracy: 85, pp: 5,
-            price: 300,
+            price: 450,
             effect: null,
             description: "だいちを ゆらす おおわざ！"
         },
         hurricane: {
             name: "ぼうふう", type: "wind", category: "attack",
             power: 65, accuracy: 85, pp: 5,
-            price: 300,
+            price: 450,
             effect: null,
             description: "すべてを ふきとばす かぜ！"
         },
         heal: {
             name: "かいふく", type: "none", category: "heal",
             power: 0, accuracy: 100, pp: 3,
-            price: 200,
+            price: 300,
             effect: { type: "heal", percent: 30 },
             description: "HPを 30% かいふくする！"
         },
         iron_wall: {
             name: "てっぺき", type: "none", category: "buff",
             power: 0, accuracy: 100, pp: 3,
-            price: 250,
+            price: 400,
             effect: { type: "stat", target: "self", stat: "defense", stages: 2 },
             description: "ぼうぎょを ぐーんと あげる！"
         },
         dragon_claw: {
             name: "ドラゴンクロー", type: "none", category: "attack",
             power: 80, accuracy: 90, pp: 3,
-            price: 500,
+            price: 750,
             effect: null,
             description: "ドラゴンの するどいツメで こうげき！"
         },
         full_burst: {
             name: "ぜんりょくほうか", type: "fire", category: "attack",
             power: 100, accuracy: 70, pp: 3,
-            price: 800,
+            price: 1200,
             effect: null,
             description: "全力の炎！ はずれやすい"
         },
         final_strike: {
             name: "さいきょうのいちげき", type: "none", category: "attack",
             power: 120, accuracy: 75, pp: 2,
-            price: 1500,
+            price: 2000,
             effect: null,
             description: "一か八かの大技！"
         }
@@ -301,11 +306,11 @@ const GameConfig = {
     //  7. 大会（カップ）リスト
     // ==========================================
     cups: [
-        { id: 1, name: "ビギナー杯",       desc: "まずはここから！ 猛獣たちとの戦い",              enemyRanks: [1, 1, 1], unlockLevel: 1,  rewardExp: 50,   rewardGold: 30  },
-        { id: 2, name: "ブロンズ杯",        desc: "古代の恐竜や幻獣が登場！",                     enemyRanks: [1, 2, 2], unlockLevel: 5,  rewardExp: 100,  rewardGold: 60  },
-        { id: 3, name: "シルバー杯",        desc: "世界中のドラゴンが集結！",                     enemyRanks: [2, 3, 3], unlockLevel: 10, rewardExp: 200,  rewardGold: 100 },
-        { id: 4, name: "ゴールド杯",        desc: "神話級の怪物に挑め！",                         enemyRanks: [3, 3, 4], unlockLevel: 15, rewardExp: 400,  rewardGold: 150 },
-        { id: 5, name: "最強王トーナメント",  desc: "真の最強を決める 最終決戦！",                   enemyRanks: [4, 4, 4], unlockLevel: 20, rewardExp: 1000, rewardGold: 200 }
+        { id: 1, name: "ビギナー杯",       desc: "まずはここから！ 猛獣たちとの戦い",              enemyRanks: [1, 1, 1], unlockLevel: 1,  rewardExp: 20,   rewardGold: 30  },
+        { id: 2, name: "ブロンズ杯",        desc: "古代の恐竜や幻獣が登場！",                     enemyRanks: [1, 2, 2], unlockLevel: 5,  rewardExp: 30,   rewardGold: 60  },
+        { id: 3, name: "シルバー杯",        desc: "世界中のドラゴンが集結！",                     enemyRanks: [2, 3, 3], unlockLevel: 10, rewardExp: 50,   rewardGold: 100 },
+        { id: 4, name: "ゴールド杯",        desc: "神話級の怪物に挑め！",                         enemyRanks: [3, 3, 4], unlockLevel: 15, rewardExp: 80,   rewardGold: 150 },
+        { id: 5, name: "最強王トーナメント",  desc: "真の最強を決める 最終決戦！",                   enemyRanks: [4, 4, 4], unlockLevel: 20, rewardExp: 200,  rewardGold: 300 }
     ],
 
     // ==========================================
@@ -434,7 +439,7 @@ const GameConfig = {
 
     // 特別アイテム
     shopSpecial: {
-        rare_candy:  { name: "ふしぎなアメ",      price: 500,  maxOwn: 99, category: "special", description: "経験値を 100 もらえる" }
+        rare_candy:  { name: "ふしぎなアメ",      price: 800,  maxOwn: 99, category: "special", description: "経験値を 100 もらえる" }
     },
 
     // ==========================================
