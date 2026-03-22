@@ -74,7 +74,7 @@ const GameManager = {
             // 初戦: 全リセット（HP・PP・バフ・アイテム全て初期化）
             GameState.resetBattle();
         } else {
-            // 2戦目以降: バフ/ガード/敵HPのみリセット、PP部分回復、HP継続
+            // 2戦目以降: バフ/ガード/敵HPのみリセット、PP・HP は継続
             GameState.playerBuffs = { attack: 0, defense: 0, speed: 0 };
             GameState.enemyBuffs  = { attack: 0, defense: 0, speed: 0 };
             GameState.playerGuard = false;
@@ -85,16 +85,7 @@ const GameManager = {
             GameState.currentEnemyHp = enemy.hp;
             GameState.currentCombo = 0;
 
-            // PP部分回復（全技+3、最大値は超えない）
-            GameState.equippedMoves.forEach(moveId => {
-                const moveData = GameConfig.moves[moveId];
-                if (moveData && GameState.battlePP[moveId] !== undefined) {
-                    GameState.battlePP[moveId] = Math.min(
-                        moveData.pp,
-                        GameState.battlePP[moveId] + 3
-                    );
-                }
-            });
+            // PP はそのまま持ち越し（HP と同様にリソース管理が戦略要素）
         }
 
         // 敵のPP初期化

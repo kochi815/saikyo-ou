@@ -72,7 +72,8 @@ const EndlessManager = {
         // ストリーク数に応じてHP補正
         const hpMultiplier = 1 + (this._streak * 0.1);
         const boostedEnemy = Object.assign({}, enemy, {
-            hp: Math.floor(enemy.hp * hpMultiplier)
+            hp: Math.floor(enemy.hp * hpMultiplier),
+            _originalRef: enemy  // 図鑑登録用に元の敵オブジェクト参照を保持
         });
 
         GameState.tournamentEnemies = [boostedEnemy];
@@ -96,12 +97,8 @@ const EndlessManager = {
             ZukanManager.registerDefeat(GameState.currentEnemyData);
         }
 
-        // 少し回復 + EXP
+        // EXP付与（HP回復は次の敵セットアップ時にまとめて行う）
         GameState.addExp(GameConfig.xpWin);
-        GameState.currentPlayerHp = Math.min(
-            GameState.maxPlayerHp,
-            GameState.currentPlayerHp + 10
-        );
 
         SoundManager.playSE("win");
 

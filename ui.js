@@ -18,8 +18,16 @@ const UIManager = {
         this.updateHpBar('player', GameState.currentPlayerHp, GameState.maxPlayerHp);
         this.updateHpBar('enemy', GameState.currentEnemyHp, GameState.maxEnemyHp);
 
-        const qText = document.getElementById('question-text');
-        if (qText) qText.textContent = GameState.currentQuestion.text;
+        // バトル中（コマンドメニューが存在する画面）は問題テキストを上書きしない
+        // （showMessage() でメッセージを制御しているため）
+        const commandMenu = document.getElementById('command-menu');
+        const isBattle = commandMenu && commandMenu.closest('#battle-scene');
+        if (!isBattle) {
+            const qText = document.getElementById('question-text');
+            if (qText && GameState.currentQuestion.text) {
+                qText.textContent = GameState.currentQuestion.text;
+            }
+        }
 
         this.updateStatusDisplay(GameState.currentExp, GameConfig.xpToLevelUp, GameState.playerLevel);
         this.updateDragonImage(GameState.playerLevel);

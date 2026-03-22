@@ -147,8 +147,20 @@ const WorkManager = {
     //  問題タイプごとに問題を生成
     // ==========================================
     _generateQuestionByType: function(type, maxNum) {
-        // QuestionGenerator.generate() に設定を渡して全タイプ対応
-        return QuestionGenerator.generate(1, { type: type, maxNum: maxNum });
+        switch (type) {
+            case "addition":
+                return QuestionGenerator.makeAddition(maxNum);
+            case "subtraction":
+                return QuestionGenerator.makeSubtraction(maxNum);
+            case "doubles":
+                return QuestionGenerator.makeDoubles(maxNum);
+            case "makeTen":
+                return QuestionGenerator.makeMakeTen();
+            case "fillBlankAdd":
+                return QuestionGenerator.makeFillBlankAdd(maxNum);
+            default:
+                return QuestionGenerator.makeAddition(maxNum);
+        }
     },
 
     // ==========================================

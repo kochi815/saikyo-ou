@@ -43,7 +43,9 @@ const ZukanManager = {
     // ==========================================
     registerDefeat: function(enemyData) {
         const allEnemies = GameConfig.enemies;
-        const idx = allEnemies.indexOf(enemyData);
+        // エンドレスモード等でHP補正されたコピーの場合、元の参照を使う
+        const originalEnemy = enemyData._originalRef || enemyData;
+        const idx = allEnemies.indexOf(originalEnemy);
         if (idx === -1) return false;
 
         if (!GameState.defeatedEnemyIndices.includes(idx)) {

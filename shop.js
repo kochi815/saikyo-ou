@@ -84,8 +84,12 @@ const ShopManager = {
             if (!moveData.price) continue;
 
             // 既に習得しているかチェック
-            const isOwned = GameState.learnedMoves.includes(moveId) ||
+            // aqua_storm と aqua_storm_learn は同一技なので、片方を持っていれば購入済み扱い
+            let isOwned = GameState.learnedMoves.includes(moveId) ||
                            GameState.shopPurchasedMoves.includes(moveId);
+            if (moveId === "aqua_storm" && GameState.learnedMoves.includes("aqua_storm_learn")) {
+                isOwned = true;
+            }
 
             const moveCard = this._createMoveCard(moveId, moveData, isOwned);
             container.appendChild(moveCard);
@@ -131,7 +135,7 @@ const ShopManager = {
         const priceDisplay = itemData.price ? `${itemData.price}G` : "0G";
 
         const buyBtnClass = canBuy ? "shop-buy-btn" : "shop-buy-btn";
-        const buyBtnText = owned >= itemData.maxOwn ? "最大" : (GameState.gold < itemData.price ? "ゴール不足" : "買う");
+        const buyBtnText = owned >= itemData.maxOwn ? "最大" : (GameState.gold < itemData.price ? "ゴールド不足" : "買う");
 
         card.innerHTML = `
             <div class="shop-card-icon">${icon}</div>
@@ -178,7 +182,7 @@ const ShopManager = {
         const typeEmoji = GameConfig.typeEmojis[moveData.type] || "⚪";
 
         const buyBtnClass = canBuy ? "shop-buy-btn" : "shop-buy-btn";
-        const buyBtnText = isOwned ? "習得済み" : (GameState.gold < moveData.price ? "ゴール不足" : "買う");
+        const buyBtnText = isOwned ? "習得済み" : (GameState.gold < moveData.price ? "ゴールド不足" : "買う");
 
         card.innerHTML = `
             <div class="shop-card-icon">${typeEmoji}</div>
@@ -220,7 +224,7 @@ const ShopManager = {
             return;
         }
 
-        // チェック：ゴール不足
+        // チェック：ゴールド不足
         if (GameState.gold < itemData.price) {
             ModalManager.show({
                 icon: "⚠️",
@@ -274,7 +278,7 @@ const ShopManager = {
             return;
         }
 
-        // チェック：ゴール不足
+        // チェック：ゴールド不足
         if (GameState.gold < moveData.price) {
             ModalManager.show({
                 icon: "⚠️",
@@ -285,8 +289,12 @@ const ShopManager = {
             return;
         }
 
-        // チェック：既に習得している
-        if (GameState.learnedMoves.includes(moveId) || GameState.shopPurchasedMoves.includes(moveId)) {
+        // チェック：既に習得している（aqua_storm と aqua_storm_learn は同一技扱い）
+        let alreadyOwned = GameState.learnedMoves.includes(moveId) || GameState.shopPurchasedMoves.includes(moveId);
+        if (moveId === "aqua_storm" && GameState.learnedMoves.includes("aqua_storm_learn")) {
+            alreadyOwned = true;
+        }
+        if (alreadyOwned) {
             ModalManager.show({
                 icon: "⚠️",
                 type: "warning",
@@ -328,7 +336,7 @@ const ShopManager = {
             return;
         }
 
-        // チェック：ゴール不足
+        // チェック：ゴールド不足
         if (GameState.gold < itemData.price) {
             ModalManager.show({
                 icon: "⚠️",
