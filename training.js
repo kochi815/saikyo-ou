@@ -326,8 +326,9 @@ const TrainingManager = {
 
     // 特訓終了：結果発表
     finishTraining: function() {
-        // 実績：特訓回数カウント
+        // 実績：特訓回数カウント＆コンボ記録
         AchievementManager.recordTraining();
+        AchievementManager.recordCombo(this.streak);
 
         // 新しい報酬計算：正解数に応じたテーブルを使用
         const rewardsTable = GameConfig.trainingRewards;

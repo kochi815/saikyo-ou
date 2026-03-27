@@ -10,8 +10,8 @@ const EndlessManager = {
 
     // エンドレスモードが解放済みか
     isUnlocked: function() {
-        // 全5カップクリアで解放
-        return GameConfig.cups.every(cup => GameState.clearedCupIds.includes(cup.id));
+        // 最強王トーナメント（カップ5）クリアで解放
+        return GameState.clearedCupIds.includes(5);
     },
 
     // エンドレスモード開始
@@ -62,7 +62,8 @@ const EndlessManager = {
         const allEnemies = GameConfig.enemies;
         // ストリーク数に応じてランクを上げる
         let maxRank = 1;
-        if (this._streak >= 10) maxRank = 4;
+        if (this._streak >= 15) maxRank = 5;
+        else if (this._streak >= 10) maxRank = 4;
         else if (this._streak >= 6) maxRank = 3;
         else if (this._streak >= 3) maxRank = 2;
 
@@ -100,13 +101,32 @@ const EndlessManager = {
         // EXP付与（HP回復は次の敵セットアップ時にまとめて行う）
         GameState.addExp(GameConfig.xpWin);
 
+        // 20連勝報酬：「りゅうのはどう」習得
+        let rewardMessage = "";
+        if (this._streak === 20 && !GameState.learnedMoves.includes("dragon_pulse")) {
+            GameState.learnedMoves.push("dragon_pulse");
+            // 装備枠が空いていれば自動装備（エンドレス中でもすぐ使える）
+            if (GameState.equippedMoves.length < 4) {
+                GameState.equippedMoves.push("dragon_pulse");
+                // 現在のバトルPPにも追加して即使用可能にする
+                const moveData = GameConfig.moves["dragon_pulse"];
+                if (moveData) {
+                    GameState.battlePP["dragon_pulse"] = moveData.pp;
+                }
+                rewardMessage = "\n🎁 新しい技「りゅうのはどう」を覚えた！\n自動で装備したぞ！";
+            } else {
+                rewardMessage = "\n🎁 新しい技「りゅうのはどう」を覚えた！\nわざへんせいで 装備しよう！";
+            }
+            StorageManager.save();
+        }
+
         SoundManager.playSE("win");
 
         // 勝利モーダル
         ModalManager.show({
-            icon: "🔥",
+            icon: this._streak === 20 && rewardMessage ? "🎁" : "🔥",
             title: `${this._streak}連勝！`,
-            message: `ベスト: ${this._bestStreak}連勝\n次の敵が来るぞ！`,
+            message: `ベスト: ${this._bestStreak}連勝\n次の敵が来るぞ！${rewardMessage}`,
             type: "success",
             buttons: [{
                 text: "つぎへ！",
@@ -115,10 +135,16 @@ const EndlessManager = {
                     // 次の敵セットアップ
                     this._setupNextEnemy();
 
-                    // HPを保存してからバトル状態をリセット（バフ/PP/ガード初期化）
+                    // HP・PPを保存してからバフ/ガードのみリセット（PPはリソース管理）
                     const savedHp = GameState.currentPlayerHp;
+                    const savedPP = Object.assign({}, GameState.battlePP);
+
                     GameState.resetBattle();
+
+                    // HP: 前戦から持ち越し + 少量回復
                     GameState.currentPlayerHp = Math.min(savedHp + 10, GameState.maxPlayerHp);
+                    // PP: 前戦から持ち越し（大技の乱用を防ぎ、技選択に戦略性を持たせる）
+                    GameState.battlePP = savedPP;
 
                     // 敵HPとPP初期化
                     GameState.currentEnemyHp = GameState.currentEnemyData.hp;

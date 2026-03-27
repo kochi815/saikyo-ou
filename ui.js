@@ -226,7 +226,13 @@ const UIManager = {
             2: "linear-gradient(180deg, #2a1a0a 0%, #3e2816 40%, #604020 100%)",   // ブロンズ: 荒野
             3: "linear-gradient(180deg, #1a0a2e 0%, #16213e 40%, #0f3460 100%)",   // シルバー: 夜空
             4: "linear-gradient(180deg, #2e0a0a 0%, #3e1616 40%, #600f0f 100%)",   // ゴールド: 火山
-            5: "linear-gradient(180deg, #0a0a2e 0%, #1a0033 40%, #2e0050 100%)"    // 最強王: 深淵
+            5: "linear-gradient(180deg, #0a0a2e 0%, #1a0033 40%, #2e0050 100%)",   // 最強王: 深淵
+            6: "linear-gradient(180deg, #0f1f0f 0%, #082a12 40%, #061f0e 100%)",   // 裏ビギナー: 暗い森
+            7: "linear-gradient(180deg, #1f1008 0%, #2e1a0a 40%, #3a1c08 100%)",   // 裏ブロンズ: 暗い荒野
+            8: "linear-gradient(180deg, #10061e 0%, #0e1830 40%, #082050 100%)",   // 裏シルバー: 暗い夜空
+            9: "linear-gradient(180deg, #200606 0%, #300e0e 40%, #480808 100%)",   // 裏ゴールド: 暗い火山
+            10: "linear-gradient(180deg, #0a0a2e 0%, #1a0033 40%, #2e0050 100%)",  // 裏最強王: 深淵
+            11: "linear-gradient(180deg, #1a0020 0%, #2d0040 40%, #400060 100%)"   // 神竜杯: 闇の深淵
         };
 
         scene.style.background = backgrounds[cupId] || backgrounds[1];

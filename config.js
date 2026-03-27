@@ -255,11 +255,45 @@ const GameConfig = {
             price: 2000,
             effect: null,
             description: "一か八かの大技！"
+        },
+
+        // --- 神竜杯・ランク5専用技 ---
+        dark_breath: {
+            name: "やみのブレス", type: "none", category: "attack",
+            power: 80, accuracy: 90, pp: 3,
+            effect: null,
+            description: "闇をまとった 恐ろしいブレス！"
+        },
+        flood: {
+            name: "こうずい", type: "water", category: "attack",
+            power: 75, accuracy: 85, pp: 3,
+            effect: null,
+            description: "すべてを おし流す 大水！"
+        },
+        seven_flame: {
+            name: "しちとうのほのお", type: "fire", category: "attack",
+            power: 90, accuracy: 80, pp: 2,
+            effect: null,
+            description: "7つの頭から 一斉に 炎を はく！"
+        },
+        dragon_blade: {
+            name: "りゅうけん", type: "none", category: "attack",
+            power: 95, accuracy: 85, pp: 3,
+            effect: null,
+            description: "聖なる竜の剣で 斬りつける！"
+        },
+
+        // --- エンドレスモード報酬技 ---
+        dragon_pulse: {
+            name: "りゅうのはどう", type: "none", category: "attack",
+            power: 40, accuracy: 100, pp: 15,
+            effect: null,
+            description: "必ず当たる 竜の波動！ 長期戦向き"
         }
     },
 
     // ==========================================
-    //  6. 敵キャラクターリスト（全31体・拡張版）
+    //  6. 敵キャラクターリスト（全38体）
     // ==========================================
     enemies: [
         // --- ランク1：猛獣・巨大生物 ---
@@ -299,7 +333,16 @@ const GameConfig = {
         { name: "ヴリトラ",               src: "assets/images/enemy_30.png", rank: 4, hp: 185, attack: 32, defense: 30, speed: 16, type: "ground",  moves: ["earthquake", "rock_throw", "iron_wall", "heal"],         ai: "smart" },
         { name: "シヴァ",                 src: "assets/images/enemy_18.png", rank: 4, hp: 210, attack: 35, defense: 24, speed: 22, type: "fire",    moves: ["full_burst", "flame_storm", "power_up", "roar"],         ai: "smart" },
         { name: "ゼウス",                 src: "assets/images/enemy_29.png", rank: 4, hp: 240, attack: 36, defense: 28, speed: 24, type: "thunder", moves: ["thunder_storm", "thunder_fang", "guard", "power_up"],    ai: "smart" },
-        { name: "レヴィアタン",           src: "assets/images/enemy_31.png", rank: 4, hp: 230, attack: 40, defense: 32, speed: 14, type: "water",   moves: ["aqua_storm", "water_shot", "iron_wall", "heal"],         ai: "smart" }
+        { name: "レヴィアタン",           src: "assets/images/enemy_31.png", rank: 4, hp: 230, attack: 40, defense: 32, speed: 14, type: "water",   moves: ["aqua_storm", "water_shot", "iron_wall", "heal"],         ai: "smart" },
+
+        // --- ランク5：神竜クラス ---（裏カップ全クリ＋特訓済みLv25前提で調整）
+        { name: "ラードーン",             src: "assets/images/enemy_32.png", rank: 5, hp: 260, attack: 36, defense: 34, speed: 16, type: "ground",   moves: ["earthquake", "rock_throw", "iron_wall", "heal"],              ai: "smart" },
+        { name: "ピュートーン",           src: "assets/images/enemy_33.png", rank: 5, hp: 240, attack: 34, defense: 28, speed: 20, type: "water",    moves: ["flood", "water_shot", "guard", "heal"],                      ai: "smart" },
+        { name: "ヤマタノオロチ",         src: "assets/images/enemy_34.png", rank: 5, hp: 280, attack: 42, defense: 24, speed: 18, type: "fire",     moves: ["seven_flame", "flame_storm", "power_up", "roar"],            ai: "smart" },
+        { name: "バハムート",             src: "assets/images/enemy_35.png", rank: 5, hp: 300, attack: 44, defense: 36, speed: 22, type: "none",     moves: ["dragon_blade", "dragon_claw", "power_up", "guard"],          ai: "smart" },
+        { name: "黙示録の赤い竜",         src: "assets/images/enemy_36.png", rank: 5, hp: 320, attack: 48, defense: 28, speed: 20, type: "fire",     moves: ["seven_flame", "full_burst", "power_up", "roar"],             ai: "smart" },
+        { name: "ダークファイヤードレイク", src: "assets/images/enemy_37.png", rank: 5, hp: 280, attack: 46, defense: 30, speed: 28, type: "fire",   moves: ["dark_breath", "flame_storm", "power_up", "guard"],           ai: "smart" },
+        { name: "ダーク応龍",             src: "assets/images/enemy_38.png", rank: 5, hp: 300, attack: 38, defense: 36, speed: 22, type: "water",    moves: ["dark_breath", "flood", "iron_wall", "heal"],                 ai: "smart" }
     ],
 
     // ==========================================
@@ -310,7 +353,17 @@ const GameConfig = {
         { id: 2, name: "ブロンズ杯",        desc: "古代の恐竜や幻獣が登場！",                     enemyRanks: [1, 2, 2], unlockLevel: 5,  rewardExp: 30,   rewardGold: 60  },
         { id: 3, name: "シルバー杯",        desc: "世界中のドラゴンが集結！",                     enemyRanks: [2, 3, 3], unlockLevel: 10, rewardExp: 50,   rewardGold: 100 },
         { id: 4, name: "ゴールド杯",        desc: "神話級の怪物に挑め！",                         enemyRanks: [3, 3, 4], unlockLevel: 15, rewardExp: 80,   rewardGold: 150 },
-        { id: 5, name: "最強王トーナメント",  desc: "真の最強を決める 最終決戦！",                   enemyRanks: [4, 4, 4], unlockLevel: 20, rewardExp: 200,  rewardGold: 300 }
+        { id: 5, name: "最強王トーナメント",  desc: "真の最強を決める 最終決戦！",                   enemyRanks: [4, 4, 4], unlockLevel: 20, rewardExp: 200,  rewardGold: 300 },
+
+        // --- 裏カップ（ステータス1.3倍＋AI昇格）---
+        { id: 6,  name: "裏ビギナー杯",      desc: "真の猛獣たちが 目を覚ました！",                  enemyRanks: [1, 1, 1], mirror: true, statMultiplier: 1.3, rewardExp: 30,  rewardGold: 50  },
+        { id: 7,  name: "裏ブロンズ杯",       desc: "真の恐竜と幻獣が 再び襲来！",                    enemyRanks: [1, 2, 2], mirror: true, statMultiplier: 1.3, rewardExp: 50,  rewardGold: 80  },
+        { id: 8,  name: "裏シルバー杯",       desc: "真のドラゴンたちが 本気を見せる！",              enemyRanks: [2, 3, 3], mirror: true, statMultiplier: 1.3, rewardExp: 80,  rewardGold: 120 },
+        { id: 9,  name: "裏ゴールド杯",       desc: "真の神話の怪物が 全力で挑む！",                  enemyRanks: [3, 3, 4], mirror: true, statMultiplier: 1.3, rewardExp: 120, rewardGold: 200 },
+        { id: 10, name: "裏最強王トーナメント", desc: "裏の最強王を決める 死闘！",                      enemyRanks: [4, 4, 4], mirror: true, statMultiplier: 1.3, rewardExp: 250, rewardGold: 400 },
+
+        // --- 神竜杯（新規ランク5＋ダークミラーボス）---
+        { id: 11, name: "神竜杯",             desc: "伝説の神竜と 闇の自分自身に挑め！",              enemyRanks: [5, 5, 5], darkMirrorBoss: true, rewardExp: 500, rewardGold: 1000 }
     ],
 
     // ==========================================
@@ -335,7 +388,31 @@ const GameConfig = {
         },
         5: {
             intro: "ついに最終決戦！\n最強の神々と決着をつけろ！\nすべての力を出しきれ！",
-            clear: "おめでとう！！\nキミこそ真の最強王だ！\nドラゴンと共に つかんだ最高の栄光！"
+            clear: "おめでとう！！\nキミこそ真の最強王だ！\n……しかし、闇の気配が 近づいている……"
+        },
+        6: {
+            intro: "最強王を倒したキミの前に\n「真」の姿を取り戻した猛獣たちが 立ちはだかる！",
+            clear: "真の猛獣を倒した！\nだが もっと強い「真」の敵が 待っている……"
+        },
+        7: {
+            intro: "真の力を解放した恐竜と幻獣……\nこれが本当の実力だ！",
+            clear: "真の恐竜を打ち破った！\nまだ先は 長いぞ……"
+        },
+        8: {
+            intro: "世界中の真のドラゴンたちが\n本気の力で 立ちはだかる！",
+            clear: "真のドラゴンにも勝った！\n残るは 神話の真の姿……"
+        },
+        9: {
+            intro: "封印が解かれた 真の神話の怪物たち……\nその力は 以前とは比べものに ならない！",
+            clear: "真の神話の怪物も倒した！\nあと一歩で 裏の世界を制覇できる！"
+        },
+        10: {
+            intro: "裏の世界の最終決戦！\n真の最強王を決める 最後の戦いだ！",
+            clear: "裏の世界を すべて制覇した！\n……その時、空が 闇に包まれた……\n伝説の神竜が 目を覚ます！"
+        },
+        11: {
+            intro: "世界の果てに眠る 伝説の神竜たち……\nそして 闇に染まった もうひとりのキミが\n最後の敵として 立ちはだかる！\nこれが 本当の最終決戦だ！",
+            clear: "すべての戦いに 勝利した！！\n闇のドラゴンを打ち破り\nキミは 真の伝説となった！\nおめでとう！！ 真の最強王！！"
         }
     },
 
@@ -343,12 +420,18 @@ const GameConfig = {
     //  9. 称号リスト
     // ==========================================
     titles: {
-        0: { name: "かけだしドラゴン使い", color: "#ccc" },
-        1: { name: "ビギナー チャンピオン", color: "#2ecc71" },
-        2: { name: "ブロンズ チャンピオン", color: "#cd7f32" },
-        3: { name: "シルバー チャンピオン", color: "#c0c0c0" },
-        4: { name: "ゴールド チャンピオン", color: "#ffd700" },
-        5: { name: "最強王", color: "#ff4444" }
+        0:  { name: "かけだしドラゴン使い", color: "#ccc" },
+        1:  { name: "ビギナー チャンピオン", color: "#2ecc71" },
+        2:  { name: "ブロンズ チャンピオン", color: "#cd7f32" },
+        3:  { name: "シルバー チャンピオン", color: "#c0c0c0" },
+        4:  { name: "ゴールド チャンピオン", color: "#ffd700" },
+        5:  { name: "最強王", color: "#ff4444" },
+        6:  { name: "裏ビギナー チャンピオン", color: "#1a8a4a" },
+        7:  { name: "裏ブロンズ チャンピオン", color: "#8b4513" },
+        8:  { name: "裏シルバー チャンピオン", color: "#808080" },
+        9:  { name: "裏ゴールド チャンピオン", color: "#daa520" },
+        10: { name: "裏最強王", color: "#cc0000" },
+        11: { name: "真の最強王", color: "#9900ff" }
     },
 
     // ==========================================
@@ -477,6 +560,14 @@ const GameConfig = {
             1: { type: ["addCarry", "subBorrow", "threeNum", "compare"],           maxNum: 20 },
             2: { type: ["threeNum", "fillBlankAdd", "fillBlankSub", "subBorrow"],  maxNum: 20 },
             3: { type: ["addCarry", "subBorrow", "threeNum", "fillBlankAdd", "fillBlankSub", "compare"], maxNum: 20 }
-        }
+        },
+        // 裏カップ: 最強王と同じ問題レベル
+        6:  { 1: { type: ["addCarry", "subBorrow", "threeNum"], maxNum: 20 }, 2: { type: ["threeNum", "fillBlankSub", "compare"], maxNum: 20 }, 3: { type: ["addCarry", "subBorrow", "threeNum", "fillBlankAdd"], maxNum: 20 } },
+        7:  { 1: { type: ["addCarry", "subBorrow", "threeNum"], maxNum: 20 }, 2: { type: ["threeNum", "fillBlankSub", "compare"], maxNum: 20 }, 3: { type: ["addCarry", "subBorrow", "threeNum", "fillBlankSub"], maxNum: 20 } },
+        8:  { 1: { type: ["addCarry", "subBorrow", "threeNum", "compare"], maxNum: 20 }, 2: { type: ["threeNum", "fillBlankAdd", "fillBlankSub"], maxNum: 20 }, 3: { type: ["addCarry", "subBorrow", "threeNum", "fillBlankAdd", "fillBlankSub", "compare"], maxNum: 20 } },
+        9:  { 1: { type: ["addCarry", "subBorrow", "threeNum", "compare"], maxNum: 20 }, 2: { type: ["threeNum", "fillBlankAdd", "fillBlankSub", "subBorrow"], maxNum: 20 }, 3: { type: ["addCarry", "subBorrow", "threeNum", "fillBlankAdd", "fillBlankSub", "compare"], maxNum: 20 } },
+        10: { 1: { type: ["addCarry", "subBorrow", "threeNum", "compare"], maxNum: 20 }, 2: { type: ["threeNum", "fillBlankAdd", "fillBlankSub", "subBorrow"], maxNum: 20 }, 3: { type: ["addCarry", "subBorrow", "threeNum", "fillBlankAdd", "fillBlankSub", "compare"], maxNum: 20 } },
+        // 神竜杯: 全種フルコース
+        11: { 1: { type: ["addCarry", "subBorrow", "threeNum", "fillBlankAdd", "fillBlankSub", "compare"], maxNum: 20 }, 2: { type: ["addCarry", "subBorrow", "threeNum", "fillBlankAdd", "fillBlankSub", "compare"], maxNum: 20 }, 3: { type: ["addCarry", "subBorrow", "threeNum", "fillBlankAdd", "fillBlankSub", "compare"], maxNum: 20 } }
     }
 };

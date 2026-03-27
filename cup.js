@@ -28,14 +28,18 @@ const CupManager = {
         const container = document.getElementById('cup-list-container');
         container.innerHTML = ""; // 前の内容をクリア
 
+        // 裏カップ（id>=6）は最強王（id5）クリア後にのみ表示
+        const showMirrorCups = GameState.clearedCupIds.includes(5);
+
         // 設定ファイルから大会リストを読み込んでループ
         GameConfig.cups.forEach(cup => {
-            
+
+            // 裏カップ・神竜杯は最強王クリアまで非表示
+            if (cup.id >= 6 && !showMirrorCups) return;
+
             // 1. 解放条件のチェック
-            // 「前の大会をクリアしているか？」(IDが1より大きい場合)
             let isLocked = false;
             if (cup.id > 1) {
-                // クリア済みIDリストに「前のID」が含まれていなければロック
                 if (!GameState.clearedCupIds.includes(cup.id - 1)) {
                     isLocked = true;
                 }
@@ -47,7 +51,18 @@ const CupManager = {
             // 3. ボタン（カード）のHTMLを作る
             const div = document.createElement("div");
             div.className = "cup-card";
-            
+
+            // 裏カップ・神竜杯は特別なスタイル
+            if (cup.mirror) {
+                div.style.borderColor = "#9900ff";
+                div.style.borderWidth = "2px";
+            }
+            if (cup.darkMirrorBoss) {
+                div.style.borderColor = "#ff0044";
+                div.style.borderWidth = "3px";
+                div.style.boxShadow = "0 0 12px rgba(255, 0, 68, 0.4)";
+            }
+
             // ロック中ならクラスを追加
             if (isLocked) {
                 div.className += " locked";
@@ -60,7 +75,6 @@ const CupManager = {
 
             if (isLocked) {
                 statusText = "🔒 ロック";
-                // 解放条件のヒント
                 const prevCup = GameConfig.cups.find(c => c.id === cup.id - 1);
                 if (prevCup) {
                     unlockHint = `${prevCup.name} をクリアすると遊べるよ！`;
@@ -73,9 +87,15 @@ const CupManager = {
                 statusColor = "#00ff00";
             }
 
+            // 名前の装飾
+            let cupTitle = cup.name;
+            if (cup.darkMirrorBoss) {
+                cupTitle = "👑 " + cup.name;
+            }
+
             // HTMLの中身をセット
             div.innerHTML = `
-                <div class="cup-title">${cup.name}</div>
+                <div class="cup-title">${cupTitle}</div>
                 <div class="cup-desc">${cup.desc}</div>
                 ${unlockHint ? `<div class="cup-unlock-hint" style="font-size:11px; color:#e67e22; margin-top:4px;">${unlockHint}</div>` : ""}
                 <div class="cup-status" style="color:${statusColor}">${statusText}</div>
@@ -88,7 +108,6 @@ const CupManager = {
                 };
             }
 
-            // 画面に追加
             container.appendChild(div);
         });
     },

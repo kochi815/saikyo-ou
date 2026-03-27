@@ -166,8 +166,9 @@ const SoundManager = {
     //  7. 大会IDに応じたBGMキーを返すヘルパー
     // ==========================================
     getBattleBgmKey: function(cupId) {
-        if (cupId === 5) return "bgm_battle_final";  // 最強王トーナメント
-        if (cupId >= 3) return "bgm_battle2";         // シルバー杯・ゴールド杯
+        // 神竜杯・裏最強王・最強王トーナメントは最終決戦BGM
+        if (cupId === 11 || cupId === 10 || cupId === 5) return "bgm_battle_final";
+        if (cupId >= 3) return "bgm_battle2";         // シルバー杯・ゴールド杯・裏カップ
         return "bgm_battle1";                          // ビギナー杯・ブロンズ杯
     },
 

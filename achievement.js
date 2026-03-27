@@ -14,13 +14,17 @@ const AchievementManager = {
         { id: "level_10",       icon: "🌙", name: "レベル10",             desc: "レベル10になった",            check: (s) => s.maxLevel >= 10 },
         { id: "level_20",       icon: "👑", name: "レベル20",             desc: "レベル20になった",            check: (s) => s.maxLevel >= 20 },
         { id: "zukan_10",       icon: "📖", name: "図鑑 10体",           desc: "10体のドラゴンを倒した",      check: (s) => s.zukanCount >= 10 },
-        { id: "zukan_all",      icon: "🏅", name: "図鑑 コンプリート",    desc: "全部のドラゴンを倒した",      check: (s) => s.zukanCount >= 31 },
+        { id: "zukan_all",      icon: "🏅", name: "図鑑 コンプリート",    desc: "ランク4まで全部倒した",       check: (s) => s.zukanCount >= 31 },
         { id: "cup_beginner",   icon: "🏆", name: "ビギナーチャンプ",     desc: "ビギナー杯 クリア",          check: (s) => s.clearedCups.includes(1) },
         { id: "cup_bronze",     icon: "🥉", name: "ブロンズチャンプ",     desc: "ブロンズ杯 クリア",          check: (s) => s.clearedCups.includes(2) },
         { id: "cup_silver",     icon: "🥈", name: "シルバーチャンプ",     desc: "シルバー杯 クリア",          check: (s) => s.clearedCups.includes(3) },
         { id: "cup_gold",       icon: "🥇", name: "ゴールドチャンプ",     desc: "ゴールド杯 クリア",          check: (s) => s.clearedCups.includes(4) },
         { id: "cup_champion",   icon: "👑", name: "最強王！",             desc: "最強王トーナメント 制覇！",   check: (s) => s.clearedCups.includes(5) },
         { id: "training_10",    icon: "💪", name: "特訓の鬼",             desc: "特訓を10回した",              check: (s) => s.trainingCount >= 10 },
+        { id: "cup_mirror_all", icon: "🌑", name: "裏の覇者",             desc: "裏カップを 全制覇した",       check: (s) => [6,7,8,9,10].every(id => s.clearedCups.includes(id)) },
+        { id: "cup_shinryu",    icon: "🐉", name: "真の最強王",            desc: "神竜杯を 制覇した！",         check: (s) => s.clearedCups.includes(11) },
+        { id: "zukan_all_38",   icon: "📕", name: "完全図鑑",              desc: "全38体を コンプリート！",     check: (s) => s.zukanCount >= 38 },
+        { id: "level_30",       icon: "✨", name: "レベル30",              desc: "レベル30になった",            check: (s) => s.maxLevel >= 30 },
     ],
 
     // 実績のステータスを収集

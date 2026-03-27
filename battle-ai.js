@@ -24,6 +24,14 @@ const BattleAI = {
             }
         });
 
+        // フォールバック技（たいあたり）のPPも常に初期化
+        if (!this.enemyPP[enemyKey]["tackle"]) {
+            const tackleData = GameConfig.moves["tackle"];
+            if (tackleData) {
+                this.enemyPP[enemyKey]["tackle"] = tackleData.pp;
+            }
+        }
+
         return this.enemyPP[enemyKey];
     },
 

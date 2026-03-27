@@ -49,13 +49,47 @@ const GameManager = {
         const allEnemies = GameConfig.enemies;
         const tournamentEnemies = [];
 
-        cupConfig.enemyRanks.forEach(rank => {
-            const candidates = allEnemies.filter(e => e.rank === rank);
-            if (candidates.length > 0) {
-                tournamentEnemies.push(candidates[Math.floor(Math.random() * candidates.length)]);
+        // AI昇格テーブル（裏カップ用）
+        const aiUpgrade = { "simple": "normal", "normal": "smart", "smart": "smart" };
+
+        cupConfig.enemyRanks.forEach((rank, roundIdx) => {
+            let enemy;
+
+            // 神竜杯の決勝：プレイヤーのキャラに対応したダークミラーボス
+            if (cupConfig.darkMirrorBoss && roundIdx === 2) {
+                const darkName = GameState.selectedCharacterType === "blue"
+                    ? "ダーク応龍" : "ダークファイヤードレイク";
+                enemy = allEnemies.find(e => e.name === darkName);
+                if (!enemy) enemy = allEnemies[allEnemies.length - 1];
             } else {
-                tournamentEnemies.push(allEnemies[0]);
+                // 通常の敵選出
+                let candidates = allEnemies.filter(e => e.rank === rank);
+                // 神竜杯：ダークミラーボスは予選・準決勝には出さない
+                if (cupConfig.darkMirrorBoss) {
+                    candidates = candidates.filter(e =>
+                        e.name !== "ダーク応龍" && e.name !== "ダークファイヤードレイク"
+                    );
+                }
+                enemy = candidates.length > 0
+                    ? candidates[Math.floor(Math.random() * candidates.length)]
+                    : allEnemies[0];
             }
+
+            // 裏カップ：ステータス補正＋AI昇格
+            if (cupConfig.mirror && cupConfig.statMultiplier) {
+                const mult = cupConfig.statMultiplier;
+                enemy = Object.assign({}, enemy, {
+                    name: "真・" + enemy.name,
+                    hp:      Math.floor(enemy.hp * mult),
+                    attack:  Math.floor(enemy.attack * mult),
+                    defense: Math.floor(enemy.defense * mult),
+                    speed:   Math.floor(enemy.speed * mult),
+                    ai:      aiUpgrade[enemy.ai] || enemy.ai,
+                    _originalRef: enemy  // 図鑑登録用
+                });
+            }
+
+            tournamentEnemies.push(enemy);
         });
 
         GameState.tournamentEnemies = tournamentEnemies;
@@ -370,7 +404,8 @@ const GameManager = {
         // 速さボーナス: 先制した側はダメージ+10%
         const playerSpd = GameState.getPlayerSpeed() * (GameConfig.buffStages[String(GameState.playerBuffs.speed)] || 1);
         const enemySpd = (GameState.currentEnemyData.speed || 10) * (GameConfig.buffStages[String(GameState.enemyBuffs.speed)] || 1);
-        if ((isPlayer && playerSpd > enemySpd) || (!isPlayer && enemySpd > playerSpd)) {
+        const hasSpeedBonus = (isPlayer && playerSpd > enemySpd) || (!isPlayer && enemySpd > playerSpd);
+        if (hasSpeedBonus) {
             damage = Math.round(damage * 1.1);
         }
 
@@ -378,7 +413,7 @@ const GameManager = {
         if (isPlayer) {
             GameState.currentEnemyHp = Math.max(0, GameState.currentEnemyHp - damage);
             SoundManager.playSE("attack");
-            EffectManager.playPlayerAttack(damage, false);
+            EffectManager.playPlayerAttack(damage, isPlayer && hasSpeedBonus);
         } else {
             GameState.currentPlayerHp = Math.max(0, GameState.currentPlayerHp - damage);
             SoundManager.playSE("damage");
@@ -706,8 +741,11 @@ const GameManager = {
     _playBossEntrance: function() {
         const enemy = GameState.currentEnemyData;
         const typeEmoji = GameConfig.typeEmojis[enemy.type] || "";
+        const cupConfig = GameConfig.cups.find(c => c.id === GameState.currentCupId);
+        const isDarkMirror = cupConfig && cupConfig.darkMirrorBoss &&
+            (enemy.name === "ダーク応龍" || enemy.name === "ダークファイヤードレイク");
 
-        UIManager.showMessage("── 決勝戦 ──");
+        UIManager.showMessage(isDarkMirror ? "── 最終決戦 ──" : "── 決勝戦 ──");
 
         const enemyImg = document.getElementById("enemy-img");
         if (enemyImg) {
@@ -716,7 +754,11 @@ const GameManager = {
         }
 
         setTimeout(() => {
-            UIManager.showMessage(`⚡ ボス 登場！ ⚡\n${enemy.name} ${typeEmoji}`);
+            if (isDarkMirror) {
+                UIManager.showMessage(`……！ あれは……\nおまえ自身の 影だ！`);
+            } else {
+                UIManager.showMessage(`⚡ ボス 登場！ ⚡\n${enemy.name} ${typeEmoji}`);
+            }
             SoundManager.playSE("burst");
 
             if (enemyImg) {
@@ -733,9 +775,15 @@ const GameManager = {
         }, 1000);
 
         setTimeout(() => {
+            if (isDarkMirror) {
+                UIManager.showMessage(`⚡ ${enemy.name} ${typeEmoji}\n闇の力を 打ち破れ！`);
+            }
+        }, 2200);
+
+        setTimeout(() => {
             if (enemyImg) enemyImg.style.transition = "";
             this.showCommandMenu();
-        }, 2500);
+        }, isDarkMirror ? 3500 : 2500);
     },
 
     // ==========================================

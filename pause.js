@@ -39,6 +39,7 @@ const PauseManager = {
                     class: "secondary",
                     callback: () => {
                         this._paused = false;
+                        GameState.isInputBlocked = false;
                         if (pauseBtn) pauseBtn.disabled = false;
 
                         // エンドレスモードを終了

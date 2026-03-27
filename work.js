@@ -381,6 +381,9 @@ const WorkManager = {
             isNewRecord = true;
         }
 
+        // コンボ実績を記録
+        AchievementManager.recordCombo(this.maxCombo);
+
         // デイリーミッションの進捗を更新
         this.updateMissionProgress("combo", this.maxCombo);
         this.updateMissionProgress("any", this.correctCount);
