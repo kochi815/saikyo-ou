@@ -113,6 +113,8 @@ const GameManager = {
             GameState.enemyBuffs  = { attack: 0, defense: 0, speed: 0 };
             GameState.playerGuard = false;
             GameState.enemyGuard = false;
+            GameState.playerCounterBonus = false;
+            GameState.enemyCounterBonus = false;
 
             // 敵HPセット
             GameState.maxEnemyHp = enemy.hp;
@@ -287,7 +289,10 @@ const GameManager = {
         const second = playerFirst ? enemyAction : playerAction;
         const firstIsPlayer = playerFirst;
 
-        // ガード状態をリセット
+        // 前ターンのガード状態 → 反撃ボーナスに変換
+        // （前ターンに「まもる」を使っていた場合、このターンの攻撃が1.5倍）
+        GameState.playerCounterBonus = GameState.playerGuard;
+        GameState.enemyCounterBonus = GameState.enemyGuard;
         GameState.playerGuard = false;
         GameState.enemyGuard = false;
 
@@ -409,6 +414,15 @@ const GameManager = {
             damage = Math.round(damage * 1.1);
         }
 
+        // 反撃ボーナス: 前ターンに「まもる」を使っていた場合ダメージ1.5倍
+        const hasCounterBonus = isPlayer ? GameState.playerCounterBonus : GameState.enemyCounterBonus;
+        if (hasCounterBonus) {
+            damage = Math.round(damage * 1.5);
+            // ボーナスを消費
+            if (isPlayer) GameState.playerCounterBonus = false;
+            else GameState.enemyCounterBonus = false;
+        }
+
         // ダメージ適用
         if (isPlayer) {
             GameState.currentEnemyHp = Math.max(0, GameState.currentEnemyHp - damage);
@@ -430,7 +444,21 @@ const GameManager = {
         UIManager.triggerShake();
 
         setTimeout(() => {
-            if (effectiveness > 1) {
+            // 反撃ボーナスメッセージ（属性相性より先に表示）
+            if (hasCounterBonus) {
+                UIManager.showMessage("反撃ボーナス！ 威力1.5倍！");
+                setTimeout(() => {
+                    if (effectiveness > 1) {
+                        UIManager.showMessage("効果は バツグンだ！");
+                        setTimeout(callback, 1000);
+                    } else if (effectiveness < 1) {
+                        UIManager.showMessage("効果は いまひとつ……");
+                        setTimeout(callback, 1000);
+                    } else {
+                        callback();
+                    }
+                }, 1000);
+            } else if (effectiveness > 1) {
                 UIManager.showMessage("効果は バツグンだ！");
                 setTimeout(callback, 1000);
             } else if (effectiveness < 1) {
@@ -455,7 +483,7 @@ const GameManager = {
         const name = isPlayer
             ? GameConfig.playerTypes[GameState.selectedCharacterType].name
             : GameState.currentEnemyData.name;
-        UIManager.showMessage(`${name} は 身構えた！`);
+        UIManager.showMessage(`${name} は 身構えた！\nダメージ半減＆次の攻撃が強化！`);
         setTimeout(callback, 1200);
     },
 

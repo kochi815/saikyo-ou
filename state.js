@@ -73,6 +73,10 @@ const GameState = {
     playerGuard: false,
     enemyGuard: false,
 
+    // 反撃ボーナス（まもる後の次ターン攻撃1.5倍）
+    playerCounterBonus: false,
+    enemyCounterBonus: false,
+
     // げんきのかけら（自動復活）フラグ
     hasRevive: false,
 
@@ -162,6 +166,8 @@ const GameState = {
         this.enemyBuffs  = { attack: 0, defense: 0, speed: 0 };
         this.playerGuard = false;
         this.enemyGuard = false;
+        this.playerCounterBonus = false;
+        this.enemyCounterBonus = false;
 
         // 技のPPを初期化
         this.battlePP = {};

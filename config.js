@@ -166,7 +166,7 @@ const GameConfig = {
             power: 0, accuracy: 100, pp: 3,
             priority: 1,  // 先制技
             effect: { type: "guard", turns: 1 },
-            description: "このターン ダメージを はんぶんにする！"
+            description: "ダメージ半減＆次の攻撃が1.5倍！"
         },
         roar: {
             name: "おたけび", type: "none", category: "debuff",
@@ -355,12 +355,12 @@ const GameConfig = {
         { id: 4, name: "ゴールド杯",        desc: "神話級の怪物に挑め！",                         enemyRanks: [3, 3, 4], unlockLevel: 15, rewardExp: 80,   rewardGold: 150 },
         { id: 5, name: "最強王トーナメント",  desc: "真の最強を決める 最終決戦！",                   enemyRanks: [4, 4, 4], unlockLevel: 20, rewardExp: 200,  rewardGold: 300 },
 
-        // --- 裏カップ（ステータス1.3倍＋AI昇格）---
-        { id: 6,  name: "裏ビギナー杯",      desc: "真の猛獣たちが 目を覚ました！",                  enemyRanks: [1, 1, 1], mirror: true, statMultiplier: 1.3, rewardExp: 30,  rewardGold: 50  },
-        { id: 7,  name: "裏ブロンズ杯",       desc: "真の恐竜と幻獣が 再び襲来！",                    enemyRanks: [1, 2, 2], mirror: true, statMultiplier: 1.3, rewardExp: 50,  rewardGold: 80  },
-        { id: 8,  name: "裏シルバー杯",       desc: "真のドラゴンたちが 本気を見せる！",              enemyRanks: [2, 3, 3], mirror: true, statMultiplier: 1.3, rewardExp: 80,  rewardGold: 120 },
-        { id: 9,  name: "裏ゴールド杯",       desc: "真の神話の怪物が 全力で挑む！",                  enemyRanks: [3, 3, 4], mirror: true, statMultiplier: 1.3, rewardExp: 120, rewardGold: 200 },
-        { id: 10, name: "裏最強王トーナメント", desc: "裏の最強王を決める 死闘！",                      enemyRanks: [4, 4, 4], mirror: true, statMultiplier: 1.3, rewardExp: 250, rewardGold: 400 },
+        // --- 裏カップ（ランク昇格＋段階的ステータス補正＋AI昇格）---
+        { id: 6,  name: "裏ビギナー杯",      desc: "真の猛獣たちが 目を覚ました！",                  enemyRanks: [2, 2, 3], mirror: true, statMultiplier: 1.3, rewardExp: 50,  rewardGold: 80  },
+        { id: 7,  name: "裏ブロンズ杯",       desc: "真の恐竜と幻獣が 再び襲来！",                    enemyRanks: [3, 3, 3], mirror: true, statMultiplier: 1.4, rewardExp: 80,  rewardGold: 120 },
+        { id: 8,  name: "裏シルバー杯",       desc: "真のドラゴンたちが 本気を見せる！",              enemyRanks: [3, 4, 4], mirror: true, statMultiplier: 1.5, rewardExp: 120, rewardGold: 200 },
+        { id: 9,  name: "裏ゴールド杯",       desc: "真の神話の怪物が 全力で挑む！",                  enemyRanks: [4, 4, 4], mirror: true, statMultiplier: 1.6, rewardExp: 180, rewardGold: 300 },
+        { id: 10, name: "裏最強王トーナメント", desc: "裏の最強王を決める 死闘！",                      enemyRanks: [4, 4, 4], mirror: true, statMultiplier: 1.8, rewardExp: 350, rewardGold: 600 },
 
         // --- 神竜杯（新規ランク5＋ダークミラーボス）---
         { id: 11, name: "神竜杯",             desc: "伝説の神竜と 闇の自分自身に挑め！",              enemyRanks: [5, 5, 5], darkMirrorBoss: true, rewardExp: 500, rewardGold: 1000 }
@@ -511,8 +511,8 @@ const GameConfig = {
     //  12. ショップ アイテム定義
     // ==========================================
     shopItems: {
-        herb:        { name: "やくそう",         price: 30,  maxOwn: 5, category: "item", description: "HPを 20 回復する",              effect: { type: "heal", value: 20 }      },
-        super_herb:  { name: "すごいやくそう",    price: 80,  maxOwn: 3, category: "item", description: "HPを 50 回復する",              effect: { type: "heal", value: 50 }      },
+        herb:        { name: "やくそう",         price: 30,  maxOwn: 5, category: "item", description: "HPを 50 回復する",              effect: { type: "heal", value: 50 }      },
+        super_herb:  { name: "すごいやくそう",    price: 80,  maxOwn: 3, category: "item", description: "HPを 120 回復する",             effect: { type: "heal", value: 120 }     },
         power_seed:  { name: "力のもと",          price: 50,  maxOwn: 3, category: "item", description: "1バトル 攻撃力 UP",            effect: { type: "buff", stat: "attack", stages: 1 }   },
         speed_seed:  { name: "速さのもと",        price: 50,  maxOwn: 3, category: "item", description: "1バトル 素早さ UP",            effect: { type: "buff", stat: "speed", stages: 1 }    },
         guard_seed:  { name: "守りのもと",        price: 50,  maxOwn: 3, category: "item", description: "1バトル 防御力 UP",            effect: { type: "buff", stat: "defense", stages: 1 }  },
