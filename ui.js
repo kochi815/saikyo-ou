@@ -366,6 +366,9 @@ const UIManager = {
                 const itemData = GameConfig.shopItems[itemId];
                 if (!itemData) continue;
 
+                // 元気のカケラ（自動発動アイテム）は手動使用メニューに表示しない
+                if (itemData.effect && itemData.effect.type === "revive") continue;
+
                 const card = document.createElement('div');
                 card.className = 'item-card';
 

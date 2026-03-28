@@ -335,14 +335,14 @@ const GameConfig = {
         { name: "ゼウス",                 src: "assets/images/enemy_29.png", rank: 4, hp: 240, attack: 36, defense: 28, speed: 24, type: "thunder", moves: ["thunder_storm", "thunder_fang", "guard", "power_up"],    ai: "smart" },
         { name: "レヴィアタン",           src: "assets/images/enemy_31.png", rank: 4, hp: 230, attack: 40, defense: 32, speed: 14, type: "water",   moves: ["aqua_storm", "water_shot", "iron_wall", "heal"],         ai: "smart" },
 
-        // --- ランク5：神竜クラス ---（裏カップ全クリ＋特訓済みLv25前提で調整）
-        { name: "ラードーン",             src: "assets/images/enemy_32.png", rank: 5, hp: 260, attack: 36, defense: 34, speed: 16, type: "ground",   moves: ["earthquake", "rock_throw", "iron_wall", "heal"],              ai: "smart" },
-        { name: "ピュートーン",           src: "assets/images/enemy_33.png", rank: 5, hp: 240, attack: 34, defense: 28, speed: 20, type: "water",    moves: ["flood", "water_shot", "guard", "heal"],                      ai: "smart" },
-        { name: "ヤマタノオロチ",         src: "assets/images/enemy_34.png", rank: 5, hp: 280, attack: 42, defense: 24, speed: 18, type: "fire",     moves: ["seven_flame", "flame_storm", "power_up", "roar"],            ai: "smart" },
-        { name: "バハムート",             src: "assets/images/enemy_35.png", rank: 5, hp: 300, attack: 44, defense: 36, speed: 22, type: "none",     moves: ["dragon_blade", "dragon_claw", "power_up", "guard"],          ai: "smart" },
-        { name: "黙示録の赤い竜",         src: "assets/images/enemy_36.png", rank: 5, hp: 320, attack: 48, defense: 28, speed: 20, type: "fire",     moves: ["seven_flame", "full_burst", "power_up", "roar"],             ai: "smart" },
-        { name: "ダークファイヤードレイク", src: "assets/images/enemy_37.png", rank: 5, hp: 280, attack: 46, defense: 30, speed: 28, type: "fire",   moves: ["dark_breath", "flame_storm", "power_up", "guard"],           ai: "smart" },
-        { name: "ダーク応龍",             src: "assets/images/enemy_38.png", rank: 5, hp: 300, attack: 38, defense: 36, speed: 22, type: "water",    moves: ["dark_breath", "flood", "iron_wall", "heal"],                 ai: "smart" }
+        // --- ランク5：神竜クラス ---（裏最強王(rank4×2.2)の約2倍の強さ）
+        { name: "ラードーン",             src: "assets/images/enemy_32.png", rank: 5, hp: 760, attack: 103, defense: 98,  speed: 28, type: "ground",   moves: ["earthquake", "rock_throw", "iron_wall", "heal"],              ai: "smart" },
+        { name: "ピュートーン",           src: "assets/images/enemy_33.png", rank: 5, hp: 680, attack: 96,  defense: 80,  speed: 38, type: "water",    moves: ["flood", "water_shot", "guard", "heal"],                      ai: "smart" },
+        { name: "ヤマタノオロチ",         src: "assets/images/enemy_34.png", rank: 5, hp: 820, attack: 122, defense: 68,  speed: 36, type: "fire",     moves: ["seven_flame", "flame_storm", "power_up", "roar"],            ai: "smart" },
+        { name: "バハムート",             src: "assets/images/enemy_35.png", rank: 5, hp: 860, attack: 128, defense: 104, speed: 40, type: "none",     moves: ["dragon_blade", "dragon_claw", "power_up", "guard"],          ai: "smart" },
+        { name: "黙示録の赤い竜",         src: "assets/images/enemy_36.png", rank: 5, hp: 900, attack: 136, defense: 80,  speed: 38, type: "fire",     moves: ["seven_flame", "full_burst", "power_up", "roar"],             ai: "smart" },
+        { name: "ダークファイヤードレイク", src: "assets/images/enemy_37.png", rank: 5, hp: 820, attack: 134, defense: 86,  speed: 52, type: "fire",   moves: ["dark_breath", "flame_storm", "power_up", "guard"],           ai: "smart" },
+        { name: "ダーク応龍",             src: "assets/images/enemy_38.png", rank: 5, hp: 860, attack: 108, defense: 104, speed: 40, type: "water",    moves: ["dark_breath", "flood", "iron_wall", "heal"],                 ai: "smart" }
     ],
 
     // ==========================================
@@ -356,11 +356,11 @@ const GameConfig = {
         { id: 5, name: "最強王トーナメント",  desc: "真の最強を決める 最終決戦！",                   enemyRanks: [4, 4, 4], unlockLevel: 20, rewardExp: 200,  rewardGold: 300 },
 
         // --- 裏カップ（ランク昇格＋段階的ステータス補正＋AI昇格）---
-        { id: 6,  name: "裏ビギナー杯",      desc: "真の猛獣たちが 目を覚ました！",                  enemyRanks: [2, 2, 3], mirror: true, statMultiplier: 1.3, rewardExp: 50,  rewardGold: 80  },
-        { id: 7,  name: "裏ブロンズ杯",       desc: "真の恐竜と幻獣が 再び襲来！",                    enemyRanks: [3, 3, 3], mirror: true, statMultiplier: 1.4, rewardExp: 80,  rewardGold: 120 },
-        { id: 8,  name: "裏シルバー杯",       desc: "真のドラゴンたちが 本気を見せる！",              enemyRanks: [3, 4, 4], mirror: true, statMultiplier: 1.5, rewardExp: 120, rewardGold: 200 },
-        { id: 9,  name: "裏ゴールド杯",       desc: "真の神話の怪物が 全力で挑む！",                  enemyRanks: [4, 4, 4], mirror: true, statMultiplier: 1.6, rewardExp: 180, rewardGold: 300 },
-        { id: 10, name: "裏最強王トーナメント", desc: "裏の最強王を決める 死闘！",                      enemyRanks: [4, 4, 4], mirror: true, statMultiplier: 1.8, rewardExp: 350, rewardGold: 600 },
+        { id: 6,  name: "裏ビギナー杯",      desc: "真の猛獣たちが 目を覚ました！",                  enemyRanks: [2, 3, 3], mirror: true, statMultiplier: 1.5, rewardExp: 50,  rewardGold: 80  },
+        { id: 7,  name: "裏ブロンズ杯",       desc: "真の恐竜と幻獣が 再び襲来！",                    enemyRanks: [3, 3, 4], mirror: true, statMultiplier: 1.6, rewardExp: 80,  rewardGold: 120 },
+        { id: 8,  name: "裏シルバー杯",       desc: "真のドラゴンたちが 本気を見せる！",              enemyRanks: [4, 4, 4], mirror: true, statMultiplier: 1.8, rewardExp: 120, rewardGold: 200 },
+        { id: 9,  name: "裏ゴールド杯",       desc: "真の神話の怪物が 全力で挑む！",                  enemyRanks: [4, 4, 4], mirror: true, statMultiplier: 2.0, rewardExp: 180, rewardGold: 300 },
+        { id: 10, name: "裏最強王トーナメント", desc: "裏の最強王を決める 死闘！",                      enemyRanks: [4, 4, 4], mirror: true, statMultiplier: 2.2, rewardExp: 350, rewardGold: 600 },
 
         // --- 神竜杯（新規ランク5＋ダークミラーボス）---
         { id: 11, name: "神竜杯",             desc: "伝説の神竜と 闇の自分自身に挑め！",              enemyRanks: [5, 5, 5], darkMirrorBoss: true, rewardExp: 500, rewardGold: 1000 }
@@ -474,6 +474,68 @@ const GameConfig = {
     trainingMaxQuestions: 5,
     // 正解数 → ステータス上昇量
     trainingRewards: { 5: 3, 4: 2, 3: 1, 2: 1, 1: 0, 0: 0 },
+
+    // ==========================================
+    //  10b. 伝説の鍛錬場（裏最強王クリア後に解放）
+    //  かけ算の導入：2の段〜5の段
+    //  報酬は通常の約1.5倍
+    // ==========================================
+    legendaryTrainingConfig: {
+        multi2: {
+            label: "封印解放・龍爪（攻撃 UP）",
+            icon: "🐉",
+            color: "#ff4500",
+            stat: "attack",
+            dan: 2,
+            questionTypes: ["multiplication"],
+            maxNum: 2,
+            description: "2の段をマスターして 封印された攻撃力を解放！",
+            masterName: "龍爪のシュトルム",
+            masterMsg: "ワシの修行に耐えられるか！\n2の段の かけ算に答えよ！"
+        },
+        multi3: {
+            label: "封印解放・龍翼（素早さ UP）",
+            icon: "🌪️",
+            color: "#00bfff",
+            stat: "speed",
+            dan: 3,
+            questionTypes: ["multiplication"],
+            maxNum: 3,
+            description: "3の段をマスターして 封印された素早さを解放！",
+            masterName: "龍翼のゼフィール",
+            masterMsg: "風のように考えろ！\n3の段の かけ算に答えよ！"
+        },
+        multi4: {
+            label: "封印解放・龍鱗（防御 UP）",
+            icon: "🛡️",
+            color: "#8b00ff",
+            stat: "defense",
+            dan: 4,
+            questionTypes: ["multiplication"],
+            maxNum: 4,
+            description: "4の段をマスターして 封印された防御力を解放！",
+            masterName: "龍鱗のガルディア",
+            masterMsg: "鉄壁の守りを 身につけるのだ！\n4の段の かけ算に答えよ！"
+        },
+        multi5: {
+            label: "封印解放・龍心（HP UP）",
+            icon: "💜",
+            color: "#00c853",
+            stat: "hp",
+            dan: 5,
+            questionTypes: ["multiplication"],
+            maxNum: 5,
+            description: "5の段をマスターして 封印された生命力を解放！",
+            masterName: "龍心のヴィータ",
+            masterMsg: "生命の力を 感じ取れ！\n5の段の かけ算に答えよ！"
+        }
+    },
+    legendaryTrainingMaxQuestions: 5,
+    // 正解数 → ステータス上昇量（通常の約1.5倍）
+    legendaryTrainingRewards: { 5: 5, 4: 3, 3: 2, 2: 1, 1: 0, 0: 0 },
+    // 伝説の鍛錬場の経験値（通常と同じ）
+    legendaryTrainingXp: 20,
+    legendaryTrainingPerfectXp: 10,
 
     // ==========================================
     //  11. しごとモード設定

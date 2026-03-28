@@ -12,6 +12,8 @@ const TrainingManager = {
     streak: 0,         // 連続正解数
     isBonusQuestion: false, // ボーナス問題フラグ
     bonusCount: 0,     // ボーナス問題で正解した数
+    isLegendary: false,    // 伝説の鍛錬場モードフラグ
+    legendaryKey: null,    // 'multi2', 'multi3', 'multi4', 'multi5'
 
     // ランダム励ましメッセージ
     _correctMessages: [
@@ -41,14 +43,24 @@ const TrainingManager = {
 
     // メニューを開く
     openMenu: function() {
+        // 伝説の鍛錬場ボタンの表示/非表示
+        const legendaryBtn = document.getElementById('btn-legendary-training');
+        if (legendaryBtn) {
+            legendaryBtn.style.display = this.isLegendaryUnlocked() ? "block" : "none";
+        }
         TransitionManager.fade("home-screen", "training-menu", "block");
+    },
+
+    // 伝説の鍛錬場が解放されているか（裏最強王クリアで解放）
+    isLegendaryUnlocked: function() {
+        return GameState.clearedCupIds && GameState.clearedCupIds.includes(10);
     },
 
     // ホームに戻る
     backToHome: function() {
         // ホーム画面の表示更新
         this.updateHomeDisplay();
-        TransitionManager.fade(["training-menu", "battle-scene"], "home-screen", "block");
+        TransitionManager.fade(["training-menu", "legendary-training-menu", "battle-scene"], "home-screen", "block");
     },
 
     // ============================================
@@ -104,8 +116,11 @@ const TrainingManager = {
 
     // 特訓スタート
     startTraining: function(type) {
+        this.isLegendary = false;
+        this.legendaryKey = null;
         this.currentType = type;
         this.questionCount = 0;
+        this.maxQuestions = GameConfig.trainingMaxQuestions || 5;
         this.correctCount = 0;
         this.streak = 0;
         this.isBonusQuestion = false;
@@ -227,11 +242,18 @@ const TrainingManager = {
     // - questionTypes から１つランダムに選択
     // - その問題タイプで問題を生成
     _generateTrainingQuestion: function(trainingType) {
-        // trainingType = 'attack', 'speed', 'defense', 'hp'
-        const config = GameConfig.trainingConfig[trainingType];
+        let config;
+
+        // 伝説の鍛錬場モードかどうか
+        if (this.isLegendary && this.legendaryKey) {
+            config = GameConfig.legendaryTrainingConfig[this.legendaryKey];
+        } else {
+            // trainingType = 'attack', 'speed', 'defense', 'hp'
+            config = GameConfig.trainingConfig[trainingType];
+        }
+
         if (!config) {
             console.error("特訓タイプが見つかりません: " + trainingType);
-            // フォールバック：通常の問題生成
             return QuestionGenerator.generate(1);
         }
 
@@ -240,8 +262,6 @@ const TrainingManager = {
         const randomIndex = Math.floor(Math.random() * questionTypes.length);
         const selectedType = questionTypes[randomIndex];
 
-        // 選択された問題タイプで問題生成
-        // QuestionGenerator.generate() の第2引数として設定を渡す
         const customConfig = {
             type: selectedType,
             maxNum: config.maxNum
@@ -306,6 +326,8 @@ const TrainingManager = {
         if (banner) {
             banner.className = '';
             banner.textContent = '';
+            banner.style.color = '';
+            banner.style.textShadow = '';
         }
 
         const target = document.getElementById('training-target');
@@ -331,7 +353,9 @@ const TrainingManager = {
         AchievementManager.recordCombo(this.streak);
 
         // 新しい報酬計算：正解数に応じたテーブルを使用
-        const rewardsTable = GameConfig.trainingRewards;
+        const rewardsTable = this.isLegendary
+            ? GameConfig.legendaryTrainingRewards
+            : GameConfig.trainingRewards;
         let gain = rewardsTable[this.correctCount] || 0;
 
         // ボーナス加算
@@ -369,10 +393,14 @@ const TrainingManager = {
         }
 
         // 経験値付与（特訓でもレベルアップできる）
-        let xpGain = GameConfig.trainingXp || 20;
+        let xpGain = this.isLegendary
+            ? (GameConfig.legendaryTrainingXp || 20)
+            : (GameConfig.trainingXp || 20);
         const isPerfect = (this.correctCount === this.maxQuestions);
         if (isPerfect) {
-            xpGain += GameConfig.trainingPerfectXp || 10;
+            xpGain += this.isLegendary
+                ? (GameConfig.legendaryTrainingPerfectXp || 10)
+                : (GameConfig.trainingPerfectXp || 10);
         }
         const leveledUp = GameState.addExp(xpGain);
         bonusText += `\n📖 経験値 +${xpGain}`;
@@ -383,9 +411,16 @@ const TrainingManager = {
         // 特訓BGMフェードアウト
         SoundManager.fadeOutBGM(500);
 
+        // 伝説の鍛錬場フラグをローカル保存（コールバックで使う）
+        const wasLegendary = this.isLegendary;
+
         // モーダルで結果発表 → 閉じたらホームへ
         StorageManager.save();
         this._showTrainingResultEnhanced(totalGain, bonusText, () => {
+            // モード状態リセット
+            this.isLegendary = false;
+            this.legendaryKey = null;
+
             // レベルアップ演出
             if (leveledUp) {
                 ModalManager.showLevelUp(GameState.playerLevel, () => {
@@ -414,9 +449,13 @@ const TrainingManager = {
         const isPerfect = (this.correctCount === this.maxQuestions);
 
         if (totalGain > 0) {
-            const icon = isPerfect ? "🌟" : "💥";
-            const title = isPerfect ? "パーフェクト！！" : "特訓 完了！";
+            const isLeg = this.isLegendary;
+            const icon = isPerfect ? "🌟" : (isLeg ? "🐉" : "💥");
+            const title = isPerfect ? "パーフェクト！！" : (isLeg ? "封印 解放！" : "特訓 完了！");
             let message = `<span class="modal-highlight">${this.correctCount}問</span> 正解！\n${statLabels[this.currentType] || this.currentType} が <span class="modal-highlight">+${totalGain}</span> 上がった！`;
+            if (isLeg) {
+                message += "\n🐉 伝説の力が 目覚めた！";
+            }
             if (bonusText) {
                 message += "\n" + bonusText;
             }
@@ -440,6 +479,122 @@ const TrainingManager = {
     },
 
     // ============================================
+    // 伝説の鍛錬場
+    // ============================================
+
+    // 伝説の鍛錬場メニューを開く
+    openLegendaryMenu: function() {
+        SoundManager.playSE("select");
+
+        // ボタンを動的に生成
+        const container = document.getElementById('legendary-training-buttons');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const config = GameConfig.legendaryTrainingConfig;
+        Object.keys(config).forEach(key => {
+            const c = config[key];
+            const btn = document.createElement('button');
+            btn.className = 'legendary-btn';
+            btn.style.background = `linear-gradient(135deg, ${c.color}cc, ${c.color}88)`;
+            btn.innerHTML = `${c.icon} ${c.label}`;
+            btn.onclick = () => this.startLegendaryTraining(key);
+            container.appendChild(btn);
+
+            // 師匠メッセージ
+            const msg = document.createElement('div');
+            msg.className = 'legendary-master-msg';
+            msg.innerHTML = `<strong>${c.masterName}：</strong><br>「${c.masterMsg}」`;
+            container.appendChild(msg);
+        });
+
+        TransitionManager.fade("training-menu", "legendary-training-menu", "block");
+    },
+
+    // 伝説の鍛錬場メニューを閉じる
+    closeLegendaryMenu: function() {
+        TransitionManager.fade("legendary-training-menu", "training-menu", "block");
+    },
+
+    // 伝説の鍛錬場 開始
+    startLegendaryTraining: function(key) {
+        const config = GameConfig.legendaryTrainingConfig[key];
+        if (!config) return;
+
+        this.isLegendary = true;
+        this.legendaryKey = key;
+        this.currentType = config.stat; // 'attack', 'speed', 'defense', 'hp'
+        this.questionCount = 0;
+        this.correctCount = 0;
+        this.streak = 0;
+        this.isBonusQuestion = false;
+        this.bonusCount = 0;
+        this.maxQuestions = GameConfig.legendaryTrainingMaxQuestions || 5;
+
+        console.log("伝説の鍛錬場 開始: " + key + " (" + config.dan + "の段)");
+
+        SoundManager.playSE("select");
+        SoundManager.playBGM("bgm_training");
+
+        // 画面切り替え
+        TransitionManager.fade("legendary-training-menu", "battle-scene", "flex");
+
+        setTimeout(() => {
+            const battleBottom = document.getElementById('battle-bottom');
+            if (battleBottom) battleBottom.style.display = 'block';
+            UIManager.hideCommandArea();
+        }, 50);
+
+        // 伝説の鍛錬場用ビジュアル
+        this._showLegendaryVisual(config);
+
+        // 師匠の登場メッセージ
+        UIManager.showMessage(`${config.masterName} が 現れた！`);
+        setTimeout(() => {
+            UIManager.showMessage(config.masterMsg);
+            setTimeout(() => {
+                UIManager.showMessage("修行 開始！");
+                setTimeout(() => {
+                    this.nextQuestion();
+                }, 800);
+            }, 2000);
+        }, 1200);
+    },
+
+    // 伝説の鍛錬場用ビジュアル表示
+    _showLegendaryVisual: function(config) {
+        const enemyArea = document.getElementById('enemy-area');
+        if (!enemyArea) return;
+
+        enemyArea.style.visibility = 'hidden';
+
+        const pauseBtn = document.getElementById('btn-pause');
+        if (pauseBtn) pauseBtn.style.display = 'none';
+
+        const banner = document.getElementById('round-banner');
+        if (banner) {
+            banner.className = 'training-banner';
+            banner.textContent = config.label;
+            banner.style.color = "#ffd700";
+            banner.style.textShadow = "0 0 10px rgba(255,215,0,0.5)";
+        }
+
+        let target = document.getElementById('training-target');
+        if (!target) {
+            target = document.createElement('div');
+            target.id = 'training-target';
+            target.className = 'training-target';
+            enemyArea.parentNode.insertBefore(target, enemyArea.nextSibling);
+        }
+        target.style.display = 'flex';
+        target.innerHTML = `
+            <div class="training-target-icon" style="font-size:60px;">${config.icon}</div>
+            <div style="color:#ffd700; font-size:14px; margin:5px 0;">${config.dan}の段の修行</div>
+            <div class="training-counter" id="training-counter">0 / ${this.maxQuestions}</div>
+        `;
+    },
+
+    // ============================================
     // ボーナス問題の視覚演出
     // ============================================
     _updateBonusVisual: function(isBonus) {
@@ -449,6 +604,10 @@ const TrainingManager = {
         if (isBonus) {
             banner.style.color = "#ffd700";
             banner.style.textShadow = "0 0 10px #ffd700";
+        } else if (this.isLegendary) {
+            // 伝説の鍛錬場中は金色スタイルを維持する
+            banner.style.color = "#ffd700";
+            banner.style.textShadow = "0 0 10px rgba(255,215,0,0.5)";
         } else {
             banner.style.color = "";
             banner.style.textShadow = "";

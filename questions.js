@@ -62,6 +62,19 @@ const QuestionGenerator = {
             case "makeTen":
                 questionData = this.makeMakeTen();
                 break;
+            // --- 伝説の鍛錬場：かけ算導入 ---
+            case "multiGroup":
+                questionData = this.makeMultiGroup(maxNum);
+                break;
+            case "multiWord":
+                questionData = this.makeMultiWord(maxNum);
+                break;
+            case "multiplication":
+                questionData = this.makeMultiplication(maxNum);
+                break;
+            case "multiReverse":
+                questionData = this.makeMultiReverse(maxNum);
+                break;
             default:
                 questionData = this.makeAddition(maxNum);
                 break;
@@ -237,6 +250,84 @@ const QuestionGenerator = {
         return {
             text: `${a} + □ = 10`,
             answer: 10 - a
+        };
+    },
+
+    // ==========================================
+    //  かけ算：絵でまとまり (⭐⭐ が 3つぶん → ぜんぶで？)
+    //  maxNum = かけられる数（段）: 2〜5
+    // ==========================================
+    makeMultiGroup: function(maxNum) {
+        const base = maxNum; // 段（2〜5）
+        const count = Math.floor(Math.random() * 9) + 1; // 1〜9
+
+        // 絵文字のまとまりを作る
+        const emojis = ["🔥", "⭐", "🍎", "💎", "⚡", "🌸", "🐉", "🗡️"];
+        const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+        const group = emoji.repeat(base);
+
+        // まとまりを並べる（5つ以上は省略表記）
+        let visual;
+        if (count <= 4) {
+            visual = Array(count).fill(group).join(" ");
+        } else {
+            visual = group + " " + group + " … " + group + `（${count}つぶん）`;
+        }
+
+        return {
+            text: `${visual}\n${base}こずつ ${count}つぶん → ぜんぶで？`,
+            answer: base * count
+        };
+    },
+
+    // ==========================================
+    //  かけ算：ことば問題（ストーリー形式）
+    //  maxNum = かけられる数（段）: 2〜5
+    // ==========================================
+    makeMultiWord: function(maxNum) {
+        const base = maxNum;
+        const count = Math.floor(Math.random() * 9) + 1;
+
+        // テーマをランダムに選ぶ
+        const themes = [
+            { unit: "こ", item: "ドラゴンのたまご", container: "す" },
+            { unit: "ほん", item: "伝説のつるぎ", container: "はこ" },
+            { unit: "まい", item: "ドラゴンのうろこ", container: "たば" },
+            { unit: "こ", item: "まほうの宝石", container: "ふくろ" },
+            { unit: "ぴき", item: "ちびドラゴン", container: "むれ" }
+        ];
+        const t = themes[Math.floor(Math.random() * themes.length)];
+
+        return {
+            text: `${t.item}が ${base}${t.unit}ずつ\n${count}${t.container}あるよ。ぜんぶで なん${t.unit}？`,
+            answer: base * count
+        };
+    },
+
+    // ==========================================
+    //  かけ算：式で出題 (2 × 3 = ?)
+    //  maxNum = かけられる数（段）: 2〜5
+    // ==========================================
+    makeMultiplication: function(maxNum) {
+        const base = maxNum;
+        const count = Math.floor(Math.random() * 9) + 1;
+        return {
+            text: `${base} × ${count} = ?`,
+            answer: base * count
+        };
+    },
+
+    // ==========================================
+    //  かけ算：逆問題 (10は 2が なんこぶん？)
+    //  maxNum = かけられる数（段）: 2〜5
+    // ==========================================
+    makeMultiReverse: function(maxNum) {
+        const base = maxNum;
+        const count = Math.floor(Math.random() * 9) + 1;
+        const total = base * count;
+        return {
+            text: `${total}は ${base}が なんこぶん？`,
+            answer: count
         };
     },
 

@@ -101,6 +101,48 @@
             text-align: center;
             padding: 20px;
         }
+        #legendary-training-menu {
+            text-align: center;
+            padding: 20px;
+        }
+        .legendary-btn {
+            display: block;
+            width: 90%;
+            margin: 10px auto;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            border: 2px solid rgba(255,215,0,0.6);
+            border-radius: 10px;
+            cursor: pointer;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .legendary-btn::before {
+            content: "";
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: legendary-shine 3s ease-in-out infinite;
+        }
+        @keyframes legendary-shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        .legendary-master-msg {
+            font-size: 13px;
+            color: #ffd700;
+            background: rgba(0,0,0,0.4);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px auto;
+            width: 85%;
+            text-align: left;
+            line-height: 1.5;
+        }
 
         /* ★新規追加：大会選択画面のスタイル */
         .cup-card {
@@ -715,7 +757,24 @@
                 🧘 からだきょうか（たいりょく UP）
             </button>
 
+            <button id="btn-legendary-training" class="home-btn" style="background:linear-gradient(135deg, #b8860b, #ffd700); color:#000; font-weight:bold; display:none; margin-top:15px; border:2px solid #ffd700;" onclick="TrainingManager.openLegendaryMenu()">
+                🐉 伝説の鍛錬場
+            </button>
+
             <button class="ans-btn" style="background:#7f8c8d; height:50px; font-size:18px; margin-top:20px;" onclick="TrainingManager.backToHome()">
+                もどる
+            </button>
+        </div>
+
+        <!-- ==================== 伝説の鍛錬場メニュー ==================== -->
+        <div id="legendary-training-menu" style="display: none; color:white;">
+            <h2 style="color:#ffd700; text-shadow:0 0 10px rgba(255,215,0,0.5);">🐉 伝説の鍛錬場</h2>
+            <p style="color:#ddd; font-size:14px;">封印された力を 解放せよ！</p>
+            <p style="color:#aaa; font-size:12px; margin-bottom:15px;">新しい計算「かけ算」に挑戦！<br>ステータスが 大きく上がるぞ！</p>
+
+            <div id="legendary-training-buttons"></div>
+
+            <button class="ans-btn" style="background:#7f8c8d; height:50px; font-size:18px; margin-top:20px;" onclick="TrainingManager.closeLegendaryMenu()">
                 もどる
             </button>
         </div>
